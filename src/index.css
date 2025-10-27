@@ -55,19 +55,19 @@
 }
 
 .dark {
-  --color-bg-primary: 15 23 42;
-  --color-bg-secondary: 30 41 59;
-  --color-bg-tertiary: 51 65 85;
-  --color-bg-hover: 51 65 85;
+  --color-bg-primary: 10 10 10;
+  --color-bg-secondary: 17 17 17;
+  --color-bg-tertiary: 26 26 26;
+  --color-bg-hover: 26 26 26;
   --color-bg-accent: 6 78 59;
 
-  --color-text-primary: 248 250 252;
-  --color-text-secondary: 203 213 225;
-  --color-text-tertiary: 148 163 184;
-  --color-text-inverse: 15 23 42;
+  --color-text-primary: 250 250 250;
+  --color-text-secondary: 161 161 170;
+  --color-text-tertiary: 113 113 122;
+  --color-text-inverse: 10 10 10;
 
-  --color-border-primary: 51 65 85;
-  --color-border-secondary: 71 85 105;
+  --color-border-primary: 26 26 26;
+  --color-border-secondary: 39 39 42;
 
   --color-emerald-50: 6 78 59;
   --color-emerald-100: 6 95 70;

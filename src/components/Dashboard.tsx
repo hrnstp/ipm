@@ -57,15 +57,15 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-themed-primary">
-      <nav className="bg-themed-secondary border-b border-themed-primary sticky top-0 z-50">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+      <nav className="bg-white dark:bg-[#111111] border-b border-gray-200 dark:border-[#1a1a1a] sticky top-0 z-50 backdrop-blur-xl bg-opacity-80 dark:bg-opacity-80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <Globe2 className="w-8 h-8 text-emerald-600" />
               <div>
-                <h1 className="text-xl font-bold text-themed-primary">SmartCity Connect</h1>
-                <p className="text-xs text-themed-tertiary">{profile?.organization}</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">CityMind AI</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-500">{profile?.organization}</p>
               </div>
             </div>
 
@@ -76,7 +76,7 @@ export default function Dashboard() {
               <ThemeToggle />
               <button
                 onClick={() => signOut()}
-                className="flex items-center gap-2 px-4 py-2 text-themed-secondary hover:text-themed-primary transition"
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="text-sm font-medium">Sign Out</span>
@@ -88,49 +88,49 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-themed-secondary rounded-xl shadow-sm p-6 border border-themed-primary">
+          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-themed-secondary font-medium">Solutions</p>
-                <p className="text-3xl font-bold text-themed-primary mt-1">{stats.solutions}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Solutions</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.solutions}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-emerald-600" />
             </div>
           </div>
 
-          <div className="bg-themed-secondary rounded-xl shadow-sm p-6 border border-themed-primary">
+          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-themed-secondary font-medium">Connections</p>
-                <p className="text-3xl font-bold text-themed-primary mt-1">{stats.connections}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Connections</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.connections}</p>
               </div>
               <Users className="w-8 h-8 text-blue-600" />
             </div>
           </div>
 
-          <div className="bg-themed-secondary rounded-xl shadow-sm p-6 border border-themed-primary">
+          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-themed-secondary font-medium">Projects</p>
-                <p className="text-3xl font-bold text-themed-primary mt-1">{stats.projects}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Projects</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.projects}</p>
               </div>
               <FolderOpen className="w-8 h-8 text-orange-600" />
             </div>
           </div>
 
-          <div className="bg-themed-secondary rounded-xl shadow-sm p-6 border border-themed-primary">
+          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-themed-secondary font-medium">Municipalities</p>
-                <p className="text-3xl font-bold text-themed-primary mt-1">{stats.municipalities}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Municipalities</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.municipalities}</p>
               </div>
-              <Globe2 className="w-8 h-8 text-themed-secondary" />
+              <Globe2 className="w-8 h-8 text-gray-400 dark:text-gray-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-themed-secondary rounded-xl shadow-sm border border-themed-primary overflow-hidden">
-          <div className="border-b border-themed-primary">
+        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-[#1a1a1a] overflow-hidden">
+          <div className="border-b border-gray-200 dark:border-[#1a1a1a]">
             <nav className="flex">
               {tabs.filter(t => t.show).map((tab) => (
                 <button
@@ -139,7 +139,7 @@ export default function Dashboard() {
                   className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
                     activeTab === tab.id
                       ? 'text-emerald-600 border-b-2 border-emerald-600'
-                      : 'text-themed-secondary hover:text-themed-primary'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                   }`}
                 >
                   <tab.icon className="w-5 h-5" />

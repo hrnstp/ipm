@@ -52,12 +52,18 @@ export default function Auth() {
   ];
 
   return (
-    <div className="min-h-screen bg-themed-primary flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 left-4">
+        <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+          <Globe2 className="w-6 h-6 text-emerald-600" />
+          <span className="font-bold">CityMind AI</span>
+        </div>
+      </div>
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
 
-      <div className="max-w-6xl w-full grid md:grid-cols-2 gap-8 items-center">
+      <div className="max-w-6xl w-full grid md:grid-cols-2 gap-8 items-center mt-12 md:mt-0">
         <div className="text-center md:text-left space-y-6">
           <div className="flex items-center justify-center md:justify-start gap-3">
             <Globe2 className="w-12 h-12 text-emerald-600" />
