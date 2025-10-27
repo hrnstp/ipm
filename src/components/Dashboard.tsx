@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target, Calendar, CheckSquare, Workflow } from 'lucide-react';
+import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target, Calendar, CheckSquare, Workflow, Shield, ShieldCheck, Lock } from 'lucide-react';
 import SolutionsMarketplace from './SolutionsMarketplace';
 import ConnectionsManager from './ConnectionsManager';
 import ProjectsManager from './ProjectsManager';
@@ -20,9 +20,13 @@ import ProjectTimeline from './ProjectTimeline';
 import TaskManager from './TaskManager';
 import DocumentManager from './DocumentManager';
 import WorkflowAutomation from './WorkflowAutomation';
+import SecurityAuditLog from './SecurityAuditLog';
+import ComplianceTracker from './ComplianceTracker';
+import DataPrivacy from './DataPrivacy';
+import SecurityManagement from './SecurityManagement';
 import ThemeToggle from './ThemeToggle';
 
-type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows';
+type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows' | 'audit' | 'compliance' | 'privacy' | 'security';
 
 export default function Dashboard() {
   const { profile, signOut } = useAuth();
@@ -71,6 +75,10 @@ export default function Dashboard() {
     { id: 'tasks' as const, label: 'Tasks', icon: CheckSquare, show: true },
     { id: 'documents' as const, label: 'Documents', icon: FileText, show: true },
     { id: 'workflows' as const, label: 'Workflows', icon: Workflow, show: true },
+    { id: 'audit' as const, label: 'Audit Log', icon: Shield, show: true },
+    { id: 'compliance' as const, label: 'Compliance', icon: ShieldCheck, show: true },
+    { id: 'privacy' as const, label: 'Privacy', icon: Lock, show: true },
+    { id: 'security' as const, label: 'Security', icon: Shield, show: true },
     { id: 'financial' as const, label: 'Financials', icon: DollarSign, show: profile?.role === 'municipality' || profile?.role === 'developer' },
     { id: 'budget' as const, label: 'Budget', icon: Calculator, show: profile?.role === 'municipality' || profile?.role === 'developer' },
     { id: 'analytics' as const, label: 'Analytics', icon: BarChart3, show: true },
@@ -185,6 +193,10 @@ export default function Dashboard() {
             {activeTab === 'tasks' && <TaskManager />}
             {activeTab === 'documents' && <DocumentManager />}
             {activeTab === 'workflows' && <WorkflowAutomation />}
+            {activeTab === 'audit' && <SecurityAuditLog />}
+            {activeTab === 'compliance' && <ComplianceTracker />}
+            {activeTab === 'privacy' && <DataPrivacy />}
+            {activeTab === 'security' && <SecurityManagement />}
             {activeTab === 'financial' && <FinancialDashboard />}
             {activeTab === 'budget' && <BudgetPlanner />}
             {activeTab === 'analytics' && <AnalyticsDashboard />}
