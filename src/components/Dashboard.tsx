@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase } from 'lucide-react';
+import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target } from 'lucide-react';
 import SolutionsMarketplace from './SolutionsMarketplace';
 import ConnectionsManager from './ConnectionsManager';
 import ProjectsManager from './ProjectsManager';
@@ -13,9 +13,12 @@ import FinancialDashboard from './FinancialDashboard';
 import ProcurementRFP from './ProcurementRFP';
 import VendorRatings from './VendorRatings';
 import ContractTemplates from './ContractTemplates';
+import AnalyticsDashboard from './AnalyticsDashboard';
+import ROICalculator from './ROICalculator';
+import BenchmarkingTool from './BenchmarkingTool';
 import ThemeToggle from './ThemeToggle';
 
-type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts';
+type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks';
 
 export default function Dashboard() {
   const { profile, signOut } = useAuth();
@@ -62,6 +65,9 @@ export default function Dashboard() {
     { id: 'projects' as const, label: 'Projects', icon: FolderOpen, show: true },
     { id: 'financial' as const, label: 'Financials', icon: DollarSign, show: profile?.role === 'municipality' || profile?.role === 'developer' },
     { id: 'budget' as const, label: 'Budget', icon: Calculator, show: profile?.role === 'municipality' || profile?.role === 'developer' },
+    { id: 'analytics' as const, label: 'Analytics', icon: BarChart3, show: true },
+    { id: 'roi' as const, label: 'ROI Calculator', icon: TrendingUp, show: profile?.role === 'municipality' },
+    { id: 'benchmarks' as const, label: 'Benchmarks', icon: Target, show: profile?.role === 'municipality' },
     { id: 'ratings' as const, label: 'Ratings', icon: Award, show: true },
     { id: 'contracts' as const, label: 'Contracts', icon: Briefcase, show: true },
     { id: 'messages' as const, label: 'Messages', icon: Mail, show: true },
@@ -169,6 +175,9 @@ export default function Dashboard() {
             {activeTab === 'projects' && <ProjectsManager />}
             {activeTab === 'financial' && <FinancialDashboard />}
             {activeTab === 'budget' && <BudgetPlanner />}
+            {activeTab === 'analytics' && <AnalyticsDashboard />}
+            {activeTab === 'roi' && <ROICalculator />}
+            {activeTab === 'benchmarks' && <BenchmarkingTool />}
             {activeTab === 'ratings' && <VendorRatings />}
             {activeTab === 'contracts' && <ContractTemplates />}
             {activeTab === 'messages' && <MessagingSystem />}
