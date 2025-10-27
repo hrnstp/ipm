@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail } from 'lucide-react';
+import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb } from 'lucide-react';
 import SolutionsMarketplace from './SolutionsMarketplace';
 import ConnectionsManager from './ConnectionsManager';
 import ProjectsManager from './ProjectsManager';
 import ProfileManager from './ProfileManager';
 import MessagingSystem from './MessagingSystem';
+import FundingOpportunities from './FundingOpportunities';
+import BudgetPlanner from './BudgetPlanner';
+import FinancialDashboard from './FinancialDashboard';
 import ThemeToggle from './ThemeToggle';
 
-type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile';
+type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial';
 
 export default function Dashboard() {
   const { profile, signOut } = useAuth();
@@ -50,8 +53,11 @@ export default function Dashboard() {
 
   const tabs = [
     { id: 'marketplace' as const, label: 'Solutions', icon: Search, show: true },
+    { id: 'funding' as const, label: 'Funding', icon: Lightbulb, show: true },
     { id: 'connections' as const, label: 'Connections', icon: Users, show: true },
     { id: 'projects' as const, label: 'Projects', icon: FolderOpen, show: true },
+    { id: 'financial' as const, label: 'Financials', icon: DollarSign, show: profile?.role === 'municipality' || profile?.role === 'developer' },
+    { id: 'budget' as const, label: 'Budget', icon: Calculator, show: profile?.role === 'municipality' || profile?.role === 'developer' },
     { id: 'messages' as const, label: 'Messages', icon: Mail, show: true },
     { id: 'profile' as const, label: 'Profile', icon: Globe2, show: true },
   ];
@@ -151,8 +157,11 @@ export default function Dashboard() {
 
           <div className="p-6">
             {activeTab === 'marketplace' && <SolutionsMarketplace />}
+            {activeTab === 'funding' && <FundingOpportunities />}
             {activeTab === 'connections' && <ConnectionsManager />}
             {activeTab === 'projects' && <ProjectsManager />}
+            {activeTab === 'financial' && <FinancialDashboard />}
+            {activeTab === 'budget' && <BudgetPlanner />}
             {activeTab === 'messages' && <MessagingSystem />}
             {activeTab === 'profile' && <ProfileManager />}
           </div>

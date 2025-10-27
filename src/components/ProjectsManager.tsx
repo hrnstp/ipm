@@ -395,17 +395,27 @@ export default function ProjectsManager() {
 
   function ProjectDetailsModal({ project, onClose, onUpdate }: { project: any, onClose: () => void, onUpdate: () => void }) {
     const [transfers, setTransfers] = useState<any[]>([]);
+    const [milestones, setMilestones] = useState<any[]>([]);
     const [showAddTransfer, setShowAddTransfer] = useState(false);
+    const [showAddMilestone, setShowAddMilestone] = useState(false);
     const [transferForm, setTransferForm] = useState({
       transfer_type: 'knowledge' as const,
       description: '',
       challenges: '',
       solutions: '',
     });
+    const [milestoneForm, setMilestoneForm] = useState({
+      title: '',
+      description: '',
+      amount: '',
+      currency: 'USD',
+      due_date: '',
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
       loadTransfers();
+      loadMilestones();
     }, []);
 
     const loadTransfers = async () => {
@@ -422,6 +432,21 @@ export default function ProjectsManager() {
         console.error('Error loading transfers:', error);
       } finally {
         setLoading(false);
+      }
+    };
+
+    const loadMilestones = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('payment_milestones')
+          .select('*')
+          .eq('project_id', project.id)
+          .order('order_index', { ascending: true });
+
+        if (error) throw error;
+        setMilestones(data || []);
+      } catch (error) {
+        console.error('Error loading milestones:', error);
       }
     };
 
@@ -450,6 +475,58 @@ export default function ProjectsManager() {
       } catch (error) {
         console.error('Error adding transfer:', error);
         alert('Failed to add technology transfer');
+      }
+    };
+
+    const handleAddMilestone = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      try {
+        const { error } = await supabase.from('payment_milestones').insert([{
+          project_id: project.id,
+          title: milestoneForm.title,
+          description: milestoneForm.description,
+          amount: parseFloat(milestoneForm.amount),
+          currency: milestoneForm.currency,
+          due_date: milestoneForm.due_date || null,
+          status: 'pending',
+          order_index: milestones.length,
+        }]);
+
+        if (error) throw error;
+
+        setShowAddMilestone(false);
+        setMilestoneForm({
+          title: '',
+          description: '',
+          amount: '',
+          currency: 'USD',
+          due_date: '',
+        });
+        loadMilestones();
+      } catch (error) {
+        console.error('Error adding milestone:', error);
+        alert('Failed to add payment milestone');
+      }
+    };
+
+    const updateMilestoneStatus = async (milestoneId: string, status: string) => {
+      try {
+        const updates: any = { status, updated_at: new Date().toISOString() };
+        if (status === 'paid') {
+          updates.paid_date = new Date().toISOString();
+        }
+
+        const { error } = await supabase
+          .from('payment_milestones')
+          .update(updates)
+          .eq('id', milestoneId);
+
+        if (error) throw error;
+        loadMilestones();
+      } catch (error) {
+        console.error('Error updating milestone:', error);
+        alert('Failed to update milestone status');
       }
     };
 
@@ -500,6 +577,163 @@ export default function ProjectsManager() {
                 <p className="text-themed-secondary">{project.adaptation_notes}</p>
               </div>
             )}
+
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-themed-primary flex items-center gap-2">
+                  <DollarSign className="w-6 h-6 text-blue-600" />
+                  Payment Milestones
+                </h3>
+                <button
+                  onClick={() => setShowAddMilestone(!showAddMilestone)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Milestone
+                </button>
+              </div>
+
+              {showAddMilestone && (
+                <form onSubmit={handleAddMilestone} className="bg-themed-primary rounded-lg p-4 border border-themed-primary mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-themed-secondary mb-1">Milestone Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={milestoneForm.title}
+                        onChange={(e) => setMilestoneForm({ ...milestoneForm, title: e.target.value })}
+                        className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-themed-primary text-themed-primary"
+                        placeholder="e.g., First Installment"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-themed-secondary mb-1">Amount</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        required
+                        value={milestoneForm.amount}
+                        onChange={(e) => setMilestoneForm({ ...milestoneForm, amount: e.target.value })}
+                        className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-themed-primary text-themed-primary"
+                        placeholder="0.00"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-themed-secondary mb-1">Currency</label>
+                      <select
+                        value={milestoneForm.currency}
+                        onChange={(e) => setMilestoneForm({ ...milestoneForm, currency: e.target.value })}
+                        className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-themed-primary text-themed-primary"
+                      >
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="ZAR">ZAR</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-themed-secondary mb-1">Due Date</label>
+                      <input
+                        type="date"
+                        value={milestoneForm.due_date}
+                        onChange={(e) => setMilestoneForm({ ...milestoneForm, due_date: e.target.value })}
+                        className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-themed-primary text-themed-primary"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-themed-secondary mb-1">Description</label>
+                      <textarea
+                        rows={2}
+                        value={milestoneForm.description}
+                        onChange={(e) => setMilestoneForm({ ...milestoneForm, description: e.target.value })}
+                        className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-themed-primary text-themed-primary"
+                        placeholder="Optional description..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+                    >
+                      Add Milestone
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddMilestone(false)}
+                      className="px-6 py-2 border border-themed-primary text-themed-secondary hover:bg-themed-hover rounded-lg transition font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {milestones.length === 0 ? (
+                <div className="text-center py-8 bg-themed-primary rounded-lg border border-themed-primary">
+                  <DollarSign className="w-12 h-12 text-themed-tertiary mx-auto mb-2" />
+                  <p className="text-themed-secondary">No payment milestones added yet</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {milestones.map((milestone, idx) => (
+                    <div key={milestone.id} className="bg-themed-primary rounded-lg p-4 border border-themed-primary">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-semibold">
+                            {idx + 1}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-themed-primary">{milestone.title}</h4>
+                            {milestone.description && (
+                              <p className="text-sm text-themed-secondary mt-1">{milestone.description}</p>
+                            )}
+                            {milestone.due_date && (
+                              <p className="text-xs text-themed-tertiary mt-1">
+                                Due: {new Date(milestone.due_date).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-themed-primary">
+                            {milestone.currency} {milestone.amount.toLocaleString()}
+                          </p>
+                          <span
+                            className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
+                              milestone.status === 'paid'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                : milestone.status === 'overdue'
+                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                            }`}
+                          >
+                            {milestone.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {milestone.status === 'pending' && (
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-themed-primary">
+                          <button
+                            onClick={() => updateMilestoneStatus(milestone.id, 'paid')}
+                            className="flex-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                          >
+                            Mark as Paid
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div>
               <div className="flex justify-between items-center mb-4">
