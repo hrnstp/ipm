@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target } from 'lucide-react';
+import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target, Calendar, CheckSquare, Workflow } from 'lucide-react';
 import SolutionsMarketplace from './SolutionsMarketplace';
 import ConnectionsManager from './ConnectionsManager';
 import ProjectsManager from './ProjectsManager';
@@ -16,9 +16,13 @@ import ContractTemplates from './ContractTemplates';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import ROICalculator from './ROICalculator';
 import BenchmarkingTool from './BenchmarkingTool';
+import ProjectTimeline from './ProjectTimeline';
+import TaskManager from './TaskManager';
+import DocumentManager from './DocumentManager';
+import WorkflowAutomation from './WorkflowAutomation';
 import ThemeToggle from './ThemeToggle';
 
-type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks';
+type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows';
 
 export default function Dashboard() {
   const { profile, signOut } = useAuth();
@@ -63,6 +67,10 @@ export default function Dashboard() {
     { id: 'funding' as const, label: 'Funding', icon: Lightbulb, show: true },
     { id: 'connections' as const, label: 'Connections', icon: Users, show: true },
     { id: 'projects' as const, label: 'Projects', icon: FolderOpen, show: true },
+    { id: 'timeline' as const, label: 'Timeline', icon: Calendar, show: true },
+    { id: 'tasks' as const, label: 'Tasks', icon: CheckSquare, show: true },
+    { id: 'documents' as const, label: 'Documents', icon: FileText, show: true },
+    { id: 'workflows' as const, label: 'Workflows', icon: Workflow, show: true },
     { id: 'financial' as const, label: 'Financials', icon: DollarSign, show: profile?.role === 'municipality' || profile?.role === 'developer' },
     { id: 'budget' as const, label: 'Budget', icon: Calculator, show: profile?.role === 'municipality' || profile?.role === 'developer' },
     { id: 'analytics' as const, label: 'Analytics', icon: BarChart3, show: true },
@@ -173,6 +181,10 @@ export default function Dashboard() {
             {activeTab === 'funding' && <FundingOpportunities />}
             {activeTab === 'connections' && <ConnectionsManager />}
             {activeTab === 'projects' && <ProjectsManager />}
+            {activeTab === 'timeline' && <ProjectTimeline />}
+            {activeTab === 'tasks' && <TaskManager />}
+            {activeTab === 'documents' && <DocumentManager />}
+            {activeTab === 'workflows' && <WorkflowAutomation />}
             {activeTab === 'financial' && <FinancialDashboard />}
             {activeTab === 'budget' && <BudgetPlanner />}
             {activeTab === 'analytics' && <AnalyticsDashboard />}
