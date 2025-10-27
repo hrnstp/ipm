@@ -93,44 +93,44 @@ export default function SolutionsMarketplace() {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6 border-b border-slate-200 flex justify-between items-center sticky top-0 bg-white">
-            <h3 className="text-xl font-bold text-slate-900">Create New Solution</h3>
-            <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-600">
+        <div className="bg-white dark:bg-[#111111] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-[#1a1a1a]">
+          <div className="p-6 border-b border-gray-200 dark:border-[#1a1a1a] flex justify-between items-center sticky top-0 bg-white dark:bg-[#111111]">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Create New Solution</h3>
+            <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
               <X className="w-6 h-6" />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Solution Title</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Solution Title</label>
               <input
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 required
                 rows={4}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -139,11 +139,11 @@ export default function SolutionsMarketplace() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Maturity Level</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maturity Level</label>
                 <select
                   value={formData.maturity_level}
                   onChange={(e) => setFormData({ ...formData, maturity_level: e.target.value as any })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 >
                   <option value="concept">Concept</option>
                   <option value="prototype">Prototype</option>
@@ -155,30 +155,30 @@ export default function SolutionsMarketplace() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Implementation Time</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Implementation Time</label>
                 <input
                   type="text"
                   value={formData.implementation_time}
                   onChange={(e) => setFormData({ ...formData, implementation_time: e.target.value })}
                   placeholder="e.g., 3-6 months"
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Price Model</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price Model</label>
                 <input
                   type="text"
                   value={formData.price_model}
                   onChange={(e) => setFormData({ ...formData, price_model: e.target.value })}
                   placeholder="e.g., Subscription"
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Adaptability Score (1-10)
               </label>
               <input
@@ -189,7 +189,7 @@ export default function SolutionsMarketplace() {
                 onChange={(e) => setFormData({ ...formData, adaptability_score: parseInt(e.target.value) })}
                 className="w-full"
               />
-              <div className="text-center text-sm text-slate-600 mt-1">{formData.adaptability_score}/10</div>
+              <div className="text-center text-sm text-gray-600 dark:text-gray-400 mt-1">{formData.adaptability_score}/10</div>
             </div>
 
             <button
@@ -206,14 +206,14 @@ export default function SolutionsMarketplace() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-600">Loading solutions...</div>;
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Loading solutions...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search solutions..."
@@ -261,12 +261,12 @@ export default function SolutionsMarketplace() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSolutions.map((solution) => (
-          <div key={solution.id} className="bg-themed-secondary border border-themed-primary rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
+          <div key={solution.id} className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#1a1a1a] rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
             <div className="p-6">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg text-themed-primary mb-1 group-hover:text-emerald-600 transition">{solution.title}</h3>
-                  <p className="text-sm text-themed-secondary">{solution.category}</p>
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1 group-hover:text-emerald-600 transition">{solution.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{solution.category}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   solution.maturity_level === 'production' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
@@ -278,24 +278,24 @@ export default function SolutionsMarketplace() {
                 </span>
               </div>
 
-              <p className="text-sm text-themed-secondary mb-4 line-clamp-3">{solution.description}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">{solution.description}</p>
 
               <div className="space-y-2 mb-4">
                 {solution.implementation_time && (
-                  <div className="flex items-center gap-2 text-sm text-themed-secondary">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Clock className="w-4 h-4" />
                     <span>{solution.implementation_time}</span>
                   </div>
                 )}
                 {solution.adaptability_score && (
-                  <div className="flex items-center gap-2 text-sm text-themed-secondary">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Zap className="w-4 h-4" />
                     <span>Adaptability: {solution.adaptability_score}/10</span>
                   </div>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-themed-primary">
+              <div className="pt-4 border-t border-gray-200 dark:border-[#1a1a1a]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center">
@@ -304,13 +304,13 @@ export default function SolutionsMarketplace() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-themed-primary">{solution.developer?.organization}</p>
-                      <p className="text-xs text-themed-tertiary">{solution.developer?.country}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{solution.developer?.organization}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">{solution.developer?.country}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setSelectedSolution(solution)}
-                    className="p-2 hover:bg-themed-hover rounded-lg transition"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition"
                     title="View details"
                   >
                     <Eye className="w-5 h-5 text-emerald-600" />
@@ -324,8 +324,8 @@ export default function SolutionsMarketplace() {
 
       {filteredSolutions.length === 0 && (
         <div className="text-center py-12">
-          <Sparkles className="w-12 h-12 text-themed-tertiary mx-auto mb-4" />
-          <p className="text-themed-secondary">No solutions found</p>
+          <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">No solutions found</p>
         </div>
       )}
 
@@ -368,8 +368,8 @@ export default function SolutionsMarketplace() {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div className="bg-themed-secondary rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-themed-primary">
-          <div className="sticky top-0 bg-themed-secondary border-b border-themed-primary p-6 flex justify-between items-start z-10">
+        <div className="bg-white dark:bg-[#111111] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-[#1a1a1a]">
+          <div className="sticky top-0 bg-white dark:bg-[#111111] border-b border-gray-200 dark:border-[#1a1a1a] p-6 flex justify-between items-start z-10">
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-themed-primary mb-2">{solution.title}</h2>
               <div className="flex items-center gap-3 flex-wrap">
