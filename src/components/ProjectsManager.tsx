@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Project, SmartSolution, Municipality, Integrator } from '../lib/supabase';
-import { FolderOpen, Plus, X, Clock, TrendingUp, MapPin, DollarSign, BookOpen, Lightbulb, GraduationCap, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
+import { FolderOpen, Plus, X, Clock, TrendingUp, MapPin, DollarSign, BookOpen, Lightbulb, GraduationCap, FileText, AlertTriangle, CheckCircle, ExternalLink, Award } from 'lucide-react';
 
 export default function ProjectsManager() {
   const { profile } = useAuth();
@@ -26,9 +26,11 @@ export default function ProjectsManager() {
           solution:smart_solutions(*),
           municipality:municipalities(*),
           integrator:integrators(*),
-          developer:profiles!developer_id(*)
+          developer:profiles!developer_id(*),
+          rfp:rfp_id(title, status, budget_min, budget_max, currency),
+          winning_bid:winning_bid_id(price, currency, timeline)
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
 
       if (profile.role === 'developer') {
         query = query.eq('developer_id', profile.id);
@@ -352,6 +354,26 @@ export default function ProjectsManager() {
               <div className="bg-slate-50 rounded-lg p-4 mb-4">
                 <p className="text-sm font-medium text-slate-700 mb-1">Local Adaptations:</p>
                 <p className="text-sm text-slate-600">{project.adaptation_notes}</p>
+              </div>
+            )}
+
+            {project.rfp && (
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100 mb-1 flex items-center gap-2">
+                      <Award className="w-4 h-4" />
+                      Created from RFP
+                    </p>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300">{project.rfp.title}</p>
+                    {project.winning_bid && (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                        Winning bid: {project.winning_bid.currency} {project.winning_bid.price?.toLocaleString()}
+                        {project.winning_bid.timeline && ` • ${project.winning_bid.timeline}`}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
