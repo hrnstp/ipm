@@ -69,27 +69,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
 
     if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{
-          id: data.user.id,
-          email,
-          ...profileData,
-        }]);
-
-      if (profileError) throw profileError;
+      // Prepare municipality or integrator data if needed
+      let municipalityData = null;
+      let integratorData = null;
 
       if (profileData.role === 'municipality') {
-        await supabase.from('municipalities').insert([{
-          profile_id: data.user.id,
+        municipalityData = {
           city_name: profileData.organization || '',
           language: 'en',
-        }]);
+        };
       } else if (profileData.role === 'integrator') {
-        await supabase.from('integrators').insert([{
-          profile_id: data.user.id,
+        integratorData = {
           company_name: profileData.organization || '',
-        }]);
+        };
+      }
+
+      // Use the database function to create profile and role-specific records
+      // This function uses SECURITY DEFINER to bypass RLS checks
+      const { data: profileId, error: profileError } = await supabase.rpc('create_user_profile', {
+        p_user_id: data.user.id,
+        p_email: email,
+        p_full_name: profileData.full_name || '',
+        p_role: profileData.role || 'developer',
+        p_organization: profileData.organization || '',
+        p_country: profileData.country || '',
+        p_region: profileData.region || '',
+        p_bio: profileData.bio || '',
+        p_avatar_url: profileData.avatar_url || null,
+        p_municipality_data: municipalityData,
+        p_integrator_data: integratorData,
+      });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw profileError;
+      }
+
+      // Reload profile after creation
+      if (data.user) {
+        await loadProfile(data.user.id);
       }
     }
   };
