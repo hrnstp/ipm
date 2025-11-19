@@ -46,17 +46,23 @@ export default function Dashboard() {
     if (!profile) return;
 
     try {
-      const [solutionsRes, connectionsRes, projectsRes, municipalitiesRes] = await Promise.all([
+      // Use RPC to safely query connections without string interpolation
+      const [solutionsRes, connectionsInitiatorRes, connectionsRecipientRes, projectsRes, municipalitiesRes] = await Promise.all([
         supabase.from('smart_solutions').select('id', { count: 'exact', head: true }),
         supabase.from('connections').select('id', { count: 'exact', head: true })
-          .or(`initiator_id.eq.${profile.id},recipient_id.eq.${profile.id}`),
+          .eq('initiator_id', profile.id),
+        supabase.from('connections').select('id', { count: 'exact', head: true })
+          .eq('recipient_id', profile.id),
         supabase.from('projects').select('id', { count: 'exact', head: true }),
         supabase.from('municipalities').select('id', { count: 'exact', head: true }),
       ]);
 
+      // Combine initiator and recipient counts, avoiding duplicates
+      const totalConnections = (connectionsInitiatorRes.count || 0) + (connectionsRecipientRes.count || 0);
+
       setStats({
         solutions: solutionsRes.count || 0,
-        connections: connectionsRes.count || 0,
+        connections: totalConnections,
         projects: projectsRes.count || 0,
         municipalities: municipalitiesRes.count || 0,
       });

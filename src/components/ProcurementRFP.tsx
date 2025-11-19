@@ -91,17 +91,34 @@ export default function ProcurementRFP() {
       const { data, error } = await query;
       if (error) throw error;
 
-      const rfpsWithBids = await Promise.all(
-        (data || []).map(async (rfp) => {
-          const { count } = await supabase
-            .from('bids')
-            .select('id', { count: 'exact', head: true })
-            .eq('rfp_id', rfp.id);
-          return { ...rfp, bid_count: count || 0 };
-        })
-      );
+      // OPTIMIZATION: Use database function to get all bid counts in ONE query instead of N+1
+      if (data && data.length > 0) {
+        const rfpIds = data.map(rfp => rfp.id);
 
-      setRfps(rfpsWithBids);
+        const { data: bidCounts, error: bidError } = await supabase
+          .rpc('get_rfp_bid_counts', { rfp_ids: rfpIds });
+
+        if (bidError) {
+          console.error('Error loading bid counts:', bidError);
+          // Fallback: set all bid counts to 0
+          setRfps(data.map(rfp => ({ ...rfp, bid_count: 0 })));
+        } else {
+          // Create a map for quick lookup
+          const bidCountMap = new Map(
+            (bidCounts || []).map(bc => [bc.rfp_id, bc.bid_count])
+          );
+
+          // Merge bid counts with RFP data
+          const rfpsWithBids = data.map(rfp => ({
+            ...rfp,
+            bid_count: bidCountMap.get(rfp.id) || 0,
+          }));
+
+          setRfps(rfpsWithBids);
+        }
+      } else {
+        setRfps([]);
+      }
     } catch (error) {
       console.error('Error loading RFPs:', error);
     } finally {
@@ -391,6 +408,25 @@ function CreateRFPModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
     e.preventDefault();
     if (!profile) return;
 
+    // Validate budget values
+    const budgetMin = parseFloat(formData.budget_min);
+    const budgetMax = parseFloat(formData.budget_max);
+
+    if (formData.budget_min && budgetMin < 0) {
+      alert('Minimum budget cannot be negative');
+      return;
+    }
+
+    if (formData.budget_max && budgetMax < 0) {
+      alert('Maximum budget cannot be negative');
+      return;
+    }
+
+    if (formData.budget_min && formData.budget_max && budgetMin > budgetMax) {
+      alert('Minimum budget cannot be greater than maximum budget');
+      return;
+    }
+
     setSaving(true);
     try {
       const reqArray = formData.requirements.split('\n').filter((r) => r.trim());
@@ -403,8 +439,8 @@ function CreateRFPModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
           title: formData.title,
           description: formData.description,
           category: formData.category,
-          budget_min: parseFloat(formData.budget_min) || null,
-          budget_max: parseFloat(formData.budget_max) || null,
+          budget_min: budgetMin || null,
+          budget_max: budgetMax || null,
           currency: formData.currency,
           deadline: formData.deadline || null,
           requirements: { items: reqArray },

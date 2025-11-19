@@ -1,7 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Validate environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl) {
+  throw new Error(
+    'Missing VITE_SUPABASE_URL environment variable. ' +
+    'Please copy .env.example to .env and add your Supabase project URL.'
+  );
+}
+
+if (!supabaseAnonKey) {
+  throw new Error(
+    'Missing VITE_SUPABASE_ANON_KEY environment variable. ' +
+    'Please copy .env.example to .env and add your Supabase anonymous key.'
+  );
+}
+
+if (!supabaseUrl.startsWith('https://')) {
+  throw new Error(
+    'Invalid VITE_SUPABASE_URL: must start with https://'
+  );
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
