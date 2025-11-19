@@ -28,6 +28,62 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type UserRole = 'developer' | 'municipality' | 'integrator';
 
+// Properly typed nested structures
+export interface CaseStudy {
+  title: string;
+  location: string;
+  description: string;
+  results?: string;
+  year?: number;
+  metrics?: Record<string, string | number>;
+}
+
+export interface SolutionRequirements {
+  technical?: string[];
+  infrastructure?: string[];
+  budget?: string;
+  timeline?: string;
+  personnel?: string[];
+  compliance?: string[];
+}
+
+export interface Infrastructure {
+  networks?: string[];
+  sensors?: string[];
+  data_centers?: string[];
+  connectivity?: string;
+  existing_systems?: string[];
+}
+
+export interface ContactInfo {
+  name?: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  address?: string;
+}
+
+export interface PastProject {
+  id?: string;
+  name: string;
+  client: string;
+  year: number;
+  description: string;
+  technologies?: string[];
+  outcome?: string;
+}
+
+export interface ProjectMilestone {
+  id?: string;
+  title: string;
+  description?: string;
+  due_date: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked';
+  completed_date?: string;
+  assignee?: string;
+  dependencies?: string[];
+}
+
 export interface Profile {
   id: string;
   email: string;
@@ -52,8 +108,8 @@ export interface SmartSolution {
   target_regions: string[];
   price_model?: string;
   implementation_time?: string;
-  case_studies: any[];
-  requirements: any;
+  case_studies: CaseStudy[];
+  requirements: SolutionRequirements;
   adaptability_score?: number;
   created_at: string;
   updated_at: string;
@@ -67,10 +123,10 @@ export interface Municipality {
   budget_range?: string;
   priorities: string[];
   challenges: string[];
-  existing_infrastructure: any;
+  existing_infrastructure: Infrastructure;
   preferred_solutions: string[];
   language: string;
-  contact_info: any;
+  contact_info: ContactInfo;
   created_at: string;
   updated_at: string;
 }
@@ -82,7 +138,7 @@ export interface Integrator {
   expertise_areas: string[];
   service_regions: string[];
   certifications: string[];
-  past_projects: any[];
+  past_projects: PastProject[];
   languages: string[];
   capacity?: string;
   created_at: string;
@@ -113,7 +169,7 @@ export interface Project {
   estimated_completion?: string;
   budget?: number;
   adaptation_notes?: string;
-  milestones: any[];
+  milestones: ProjectMilestone[];
   created_at: string;
   updated_at: string;
 }
