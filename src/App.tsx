@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { errorLogger } from './utils/errorLogging';
 import Auth from './components/Auth';
@@ -34,18 +35,20 @@ function App() {
       }}
     >
       <ThemeProvider>
-        <AuthProvider>
-          <ErrorBoundary
-            onError={(error, errorInfo) => {
-              // Log application-level errors
-              errorLogger.logError(error, errorInfo, {
-                context: 'Application',
-              });
-            }}
-          >
-            <AppContent />
-          </ErrorBoundary>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <ErrorBoundary
+              onError={(error, errorInfo) => {
+                // Log application-level errors
+                errorLogger.logError(error, errorInfo, {
+                  context: 'Application',
+                });
+              }}
+            >
+              <AppContent />
+            </ErrorBoundary>
+          </AuthProvider>
+        </ToastProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
