@@ -1,5 +1,8 @@
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './contexts/ToastContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { errorLogger } from './utils/errorLogging';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 
@@ -22,11 +25,32 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        // Use centralized error logger for root-level errors
+        errorLogger.logError(error, errorInfo, {
+          context: 'App Root',
+          critical: true,
+        });
+      }}
+    >
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <ErrorBoundary
+              onError={(error, errorInfo) => {
+                // Log application-level errors
+                errorLogger.logError(error, errorInfo, {
+                  context: 'Application',
+                });
+              }}
+            >
+              <AppContent />
+            </ErrorBoundary>
+          </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
