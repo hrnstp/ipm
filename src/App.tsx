@@ -1,5 +1,7 @@
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './shared/contexts/ToastContext';
+import { ErrorBoundary } from './shared/components/ErrorBoundary';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 
@@ -22,11 +24,15 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

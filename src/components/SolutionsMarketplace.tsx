@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase, SmartSolution, Profile } from '../lib/supabase';
+import { SmartSolution, Profile } from '../lib/supabase';
 import { Search, Filter, Plus, X, Sparkles, TrendingUp, MapPin, Clock, Zap, Eye, MessageCircle, Star, Users as UsersIcon, FileText, ExternalLink } from 'lucide-react';
+import { solutionService } from '../shared/services/solutionService';
+import { connectionService } from '../shared/services/connectionService';
+import { useErrorHandler } from '../shared/hooks/useErrorHandler';
+import { useToast } from '../shared/hooks/useToast';
+import { useValidatedForm } from '../shared/hooks/useValidatedForm';
+import { createSolutionSchema, type CreateSolutionInput } from '../shared/validation/schemas/solutionSchema';
 
 export default function SolutionsMarketplace() {
   const { profile } = useAuth();
+  const handleError = useErrorHandler();
+  const { showSuccess, showError } = useToast();
   const [solutions, setSolutions] = useState<(SmartSolution & { developer: Profile })[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,22 +34,20 @@ export default function SolutionsMarketplace() {
 
   useEffect(() => {
     loadSolutions();
-  }, []);
+  }, [categoryFilter, maturityFilter]);
 
   const loadSolutions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('smart_solutions')
-        .select(`
-          *,
-          developer:profiles!developer_id(*)
-        `)
-        .order('created_at', { ascending: false });
+      setLoading(true);
+      const { data, error } = await solutionService.getSolutions({
+        category: categoryFilter !== 'all' ? categoryFilter : undefined,
+        maturity_level: maturityFilter !== 'all' ? maturityFilter as any : undefined,
+      });
 
       if (error) throw error;
       setSolutions(data || []);
     } catch (error) {
-      console.error('Error loading solutions:', error);
+      handleError(error, 'Failed to load solutions');
     } finally {
       setLoading(false);
     }
@@ -56,38 +62,35 @@ export default function SolutionsMarketplace() {
   });
 
   const CreateSolutionModal = () => {
-    const [formData, setFormData] = useState({
-      title: '',
-      description: '',
+    const form = useValidatedForm<CreateSolutionInput>(createSolutionSchema, {
       category: categories[0],
-      maturity_level: 'prototype' as const,
-      implementation_time: '',
-      price_model: '',
-      adaptability_score: 5,
+      maturity_level: 'prototype',
+      technologies: [],
+      target_regions: [],
+      case_studies: [],
+      requirements: {},
     });
-    const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setSubmitting(true);
+    const handleSubmit = async (data: CreateSolutionInput) => {
+      if (!profile?.id) {
+        showError('You must be logged in to create a solution');
+        return;
+      }
 
       try {
-        const { error } = await supabase.from('smart_solutions').insert([{
-          ...formData,
-          developer_id: profile?.id,
-          technologies: [],
-          target_regions: [],
-        }]);
+        const { data: solution, error } = await solutionService.createSolution({
+          ...data,
+          developer_id: profile.id,
+        });
 
         if (error) throw error;
 
+        showSuccess('Solution created successfully!');
         await loadSolutions();
         setShowCreateModal(false);
+        form.reset();
       } catch (error) {
-        console.error('Error creating solution:', error);
-        alert('Failed to create solution');
-      } finally {
-        setSubmitting(false);
+        handleError(error, 'Failed to create solution');
       }
     };
 
@@ -101,35 +104,44 @@ export default function SolutionsMarketplace() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Solution Title</label>
               <input
                 type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                {...form.register('title')}
+                className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none ${
+                  form.formState.errors.title ? 'border-red-500' : 'border-gray-300 dark:border-[#1a1a1a]'
+                }`}
               />
+              {form.formState.errors.title && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {form.formState.errors.title.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
-                required
                 rows={4}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                {...form.register('description')}
+                className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none ${
+                  form.formState.errors.description ? 'border-red-500' : 'border-gray-300 dark:border-[#1a1a1a]'
+                }`}
               />
+              {form.formState.errors.description && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {form.formState.errors.description.message}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  {...form.register('category')}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 >
                   {categories.map((cat) => (
@@ -141,8 +153,7 @@ export default function SolutionsMarketplace() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maturity Level</label>
                 <select
-                  value={formData.maturity_level}
-                  onChange={(e) => setFormData({ ...formData, maturity_level: e.target.value as any })}
+                  {...form.register('maturity_level')}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 >
                   <option value="concept">Concept</option>
@@ -158,8 +169,7 @@ export default function SolutionsMarketplace() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Implementation Time</label>
                 <input
                   type="text"
-                  value={formData.implementation_time}
-                  onChange={(e) => setFormData({ ...formData, implementation_time: e.target.value })}
+                  {...form.register('implementation_time')}
                   placeholder="e.g., 3-6 months"
                   className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 />
@@ -169,8 +179,7 @@ export default function SolutionsMarketplace() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price Model</label>
                 <input
                   type="text"
-                  value={formData.price_model}
-                  onChange={(e) => setFormData({ ...formData, price_model: e.target.value })}
+                  {...form.register('price_model')}
                   placeholder="e.g., Subscription"
                   className="w-full px-4 py-2 border border-gray-300 dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
                 />
@@ -341,26 +350,27 @@ export default function SolutionsMarketplace() {
 
   function SolutionDetailModal({ solution, onClose }: { solution: SmartSolution & { developer: Profile }, onClose: () => void }) {
     const [sendingConnection, setSendingConnection] = useState(false);
+    const { showSuccess } = useToast();
+    const handleError = useErrorHandler();
 
     const handleConnect = async () => {
       if (!profile || profile.id === solution.developer_id) return;
 
       setSendingConnection(true);
       try {
-        const { error } = await supabase.from('connections').insert([{
+        const { error } = await connectionService.createConnection({
           initiator_id: profile.id,
           recipient_id: solution.developer_id,
           message: `I'm interested in your solution "${solution.title}"`,
           connection_type: 'inquiry',
           status: 'pending',
-        }]);
+        });
 
         if (error) throw error;
-        alert('Connection request sent successfully!');
+        showSuccess('Connection request sent successfully!');
         onClose();
       } catch (error) {
-        console.error('Error sending connection:', error);
-        alert('Failed to send connection request');
+        handleError(error, 'Failed to send connection request');
       } finally {
         setSendingConnection(false);
       }

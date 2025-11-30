@@ -20,79 +20,22 @@ export interface Profile {
   created_at: string;
 }
 
-export interface SmartSolution {
-  id: string;
-  developer_id: string;
-  title: string;
-  description: string;
-  category: string;
-  technologies: string[];
-  maturity_level: 'concept' | 'prototype' | 'pilot' | 'production';
-  target_regions: string[];
-  price_model?: string;
-  implementation_time?: string;
-  case_studies: any[];
-  requirements: any;
-  adaptability_score?: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Municipality {
-  id: string;
-  profile_id: string;
-  city_name: string;
-  population?: number;
-  budget_range?: string;
-  priorities: string[];
-  challenges: string[];
-  existing_infrastructure: any;
-  preferred_solutions: string[];
-  language: string;
-  contact_info: any;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Integrator {
-  id: string;
-  profile_id: string;
-  company_name: string;
-  expertise_areas: string[];
-  service_regions: string[];
-  certifications: string[];
-  past_projects: any[];
-  languages: string[];
-  capacity?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Connection {
-  id: string;
-  initiator_id: string;
-  recipient_id: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  message?: string;
-  connection_type: 'partnership' | 'inquiry' | 'collaboration';
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Project {
-  id: string;
-  solution_id: string;
-  municipality_id: string;
-  integrator_id?: string;
-  developer_id: string;
-  title: string;
-  status: 'planning' | 'in_progress' | 'completed' | 'on_hold';
-  phase?: string;
-  start_date?: string;
-  estimated_completion?: string;
-  budget?: number;
-  adaptation_notes?: string;
-  milestones: any[];
-  created_at: string;
-  updated_at: string;
-}
+// Re-export types from shared/types for backward compatibility
+export type {
+  SmartSolution,
+  Municipality,
+  Integrator,
+  Project,
+  Connection,
+  CaseStudy,
+  SolutionRequirements,
+  ExistingInfrastructure,
+  ContactInfo,
+  PastProject,
+  Milestone,
+  RFP,
+  Bid,
+  RFPRequirements,
+  EvaluationCriteria,
+  VendorRating,
+} from '../shared/types/database.types';

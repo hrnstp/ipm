@@ -3,42 +3,44 @@ import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../lib/supabase';
 import { Globe2, Building2, Users, Network } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import { signInSchema, signUpSchema, type SignInInput, type SignUpInput } from '../shared/validation/schemas/authSchema';
+import { useValidatedForm } from '../shared/hooks/useValidatedForm';
+import { useErrorHandler } from '../shared/hooks/useErrorHandler';
+import { useToast } from '../shared/hooks/useToast';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [organization, setOrganization] = useState('');
-  const [country, setCountry] = useState('');
-  const [region, setRegion] = useState('');
-  const [role, setRole] = useState<UserRole>('developer');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
   const { signIn, signUp } = useAuth();
+  const handleError = useErrorHandler();
+  const { showSuccess } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  const signInForm = useValidatedForm<SignInInput>(signInSchema);
+  const signUpForm = useValidatedForm<SignUpInput>(signUpSchema, {
+    role: 'developer',
+  });
 
+  const handleSignIn = async (data: SignInInput) => {
     try {
-      if (isLogin) {
-        await signIn(email, password);
-      } else {
-        await signUp(email, password, {
-          full_name: fullName,
-          organization,
-          country,
-          region,
-          role,
-        });
-      }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
-    } finally {
-      setLoading(false);
+      await signIn(data.email, data.password);
+      showSuccess('Welcome back!');
+    } catch (error) {
+      handleError(error, 'Failed to sign in');
+    }
+  };
+
+  const handleSignUp = async (data: SignUpInput) => {
+    try {
+      await signUp(data.email, data.password, {
+        full_name: data.full_name,
+        organization: data.organization,
+        country: data.country,
+        region: data.region,
+        role: data.role,
+        bio: data.bio,
+      });
+      showSuccess('Account created successfully!');
+    } catch (error) {
+      handleError(error, 'Failed to create account');
     }
   };
 
@@ -106,123 +108,211 @@ export default function Auth() {
             {isLogin ? 'Welcome Back' : 'Join the Platform'}
           </h2>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm">
-              {error}
-            </div>
+          {isLogin ? (
+            <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  {...signInForm.register('email')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                    signInForm.formState.errors.email
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-slate-300'
+                  }`}
+                />
+                {signInForm.formState.errors.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signInForm.formState.errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  {...signInForm.register('password')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                    signInForm.formState.errors.password
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-slate-300'
+                  }`}
+                />
+                {signInForm.formState.errors.password && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signInForm.formState.errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={signInForm.formState.isSubmitting}
+                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {signInForm.formState.isSubmitting ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  {...signUpForm.register('full_name')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary ${
+                    signUpForm.formState.errors.full_name
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-themed-primary'
+                  }`}
+                />
+                {signUpForm.formState.errors.full_name && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.full_name.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Role
+                </label>
+                <select
+                  {...signUpForm.register('role')}
+                  className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary"
+                >
+                  <option value="developer">Solution Developer</option>
+                  <option value="municipality">Municipality</option>
+                  <option value="integrator">System Integrator</option>
+                </select>
+                {signUpForm.formState.errors.role && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.role.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Organization
+                </label>
+                <input
+                  type="text"
+                  {...signUpForm.register('organization')}
+                  placeholder={signUpForm.watch('role') === 'municipality' ? 'City name' : 'Company name'}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary ${
+                    signUpForm.formState.errors.organization
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-themed-primary'
+                  }`}
+                />
+                {signUpForm.formState.errors.organization && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.organization.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Country
+                </label>
+                <input
+                  type="text"
+                  {...signUpForm.register('country')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary ${
+                    signUpForm.formState.errors.country
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-themed-primary'
+                  }`}
+                />
+                {signUpForm.formState.errors.country && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.country.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Region
+                </label>
+                <select
+                  {...signUpForm.register('region')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary ${
+                    signUpForm.formState.errors.region
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-themed-primary'
+                  }`}
+                >
+                  <option value="">Select Region</option>
+                  {globalSouthRegions.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+                {signUpForm.formState.errors.region && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.region.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  {...signUpForm.register('email')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                    signUpForm.formState.errors.email
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-slate-300'
+                  }`}
+                />
+                {signUpForm.formState.errors.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-themed-secondary mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  {...signUpForm.register('password')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                    signUpForm.formState.errors.password
+                      ? 'border-red-500 dark:border-red-500'
+                      : 'border-slate-300'
+                  }`}
+                />
+                {signUpForm.formState.errors.password && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {signUpForm.formState.errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={signUpForm.formState.isSubmitting}
+                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {signUpForm.formState.isSubmitting ? 'Creating account...' : 'Create Account'}
+              </button>
+            </form>
           )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-themed-secondary mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-themed-secondary mb-1">
-                    Role
-                  </label>
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as UserRole)}
-                    className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary"
-                  >
-                    <option value="developer">Solution Developer</option>
-                    <option value="municipality">Municipality</option>
-                    <option value="integrator">System Integrator</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-themed-secondary mb-1">
-                    Organization
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                    placeholder={role === 'municipality' ? 'City name' : 'Company name'}
-                    className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-themed-secondary mb-1">
-                    Country
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-themed-secondary mb-1">
-                    Region
-                  </label>
-                  <select
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border border-themed-primary rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-themed-primary text-themed-primary"
-                  >
-                    <option value="">Select Region</option>
-                    {globalSouthRegions.map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
-                </div>
-              </>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-themed-secondary mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-themed-secondary mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-            </button>
-          </form>
 
           <button
             onClick={() => setIsLogin(!isLogin)}

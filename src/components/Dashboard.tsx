@@ -1,30 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target, Calendar, CheckSquare, Workflow, Shield, ShieldCheck, Lock } from 'lucide-react';
-import SolutionsMarketplace from './SolutionsMarketplace';
-import ConnectionsManager from './ConnectionsManager';
-import ProjectsManager from './ProjectsManager';
-import ProfileManager from './ProfileManager';
-import MessagingSystem from './MessagingSystem';
-import FundingOpportunities from './FundingOpportunities';
-import BudgetPlanner from './BudgetPlanner';
-import FinancialDashboard from './FinancialDashboard';
-import ProcurementRFP from './ProcurementRFP';
-import VendorRatings from './VendorRatings';
-import ContractTemplates from './ContractTemplates';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import ROICalculator from './ROICalculator';
-import BenchmarkingTool from './BenchmarkingTool';
-import ProjectTimeline from './ProjectTimeline';
-import TaskManager from './TaskManager';
-import DocumentManager from './DocumentManager';
-import WorkflowAutomation from './WorkflowAutomation';
-import SecurityAuditLog from './SecurityAuditLog';
-import ComplianceTracker from './ComplianceTracker';
-import DataPrivacy from './DataPrivacy';
-import SecurityManagement from './SecurityManagement';
+import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target, Calendar, CheckSquare, Workflow, Shield, ShieldCheck, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+
+// Lazy load all components for better performance
+const SolutionsMarketplace = lazy(() => import('./SolutionsMarketplace'));
+const ConnectionsManager = lazy(() => import('./ConnectionsManager'));
+const ProjectsManager = lazy(() => import('./ProjectsManager'));
+const ProfileManager = lazy(() => import('./ProfileManager'));
+const MessagingSystem = lazy(() => import('./MessagingSystem'));
+const FundingOpportunities = lazy(() => import('./FundingOpportunities'));
+const BudgetPlanner = lazy(() => import('./BudgetPlanner'));
+const FinancialDashboard = lazy(() => import('./FinancialDashboard'));
+const ProcurementRFP = lazy(() => import('./ProcurementRFP'));
+const VendorRatings = lazy(() => import('./VendorRatings'));
+const ContractTemplates = lazy(() => import('./ContractTemplates'));
+const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
+const ROICalculator = lazy(() => import('./ROICalculator'));
+const BenchmarkingTool = lazy(() => import('./BenchmarkingTool'));
+const ProjectTimeline = lazy(() => import('./ProjectTimeline'));
+const TaskManager = lazy(() => import('./TaskManager'));
+const DocumentManager = lazy(() => import('./DocumentManager'));
+const WorkflowAutomation = lazy(() => import('./WorkflowAutomation'));
+const SecurityAuditLog = lazy(() => import('./SecurityAuditLog'));
+const ComplianceTracker = lazy(() => import('./ComplianceTracker'));
+const DataPrivacy = lazy(() => import('./DataPrivacy'));
+const SecurityManagement = lazy(() => import('./SecurityManagement'));
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows' | 'audit' | 'compliance' | 'privacy' | 'security';
 
@@ -37,10 +45,47 @@ export default function Dashboard() {
     projects: 0,
     municipalities: 0,
   });
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
   useEffect(() => {
     loadStats();
   }, [profile]);
+
+  useEffect(() => {
+    const checkScrollButtons = () => {
+      if (!tabsContainerRef.current) return;
+      const container = tabsContainerRef.current;
+      const hasOverflow = container.scrollWidth > container.clientWidth;
+      setShowLeftArrow(hasOverflow && container.scrollLeft > 0);
+      setShowRightArrow(
+        hasOverflow && container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+      );
+    };
+
+    const container = tabsContainerRef.current;
+    if (container) {
+      // Initial check after a short delay to ensure DOM is ready
+      setTimeout(checkScrollButtons, 100);
+      container.addEventListener('scroll', checkScrollButtons);
+      window.addEventListener('resize', checkScrollButtons);
+      return () => {
+        container.removeEventListener('scroll', checkScrollButtons);
+        window.removeEventListener('resize', checkScrollButtons);
+      };
+    }
+  }, [profile]); // Re-check when profile changes (affects visible tabs)
+
+  const scrollTabs = (direction: 'left' | 'right') => {
+    if (!tabsContainerRef.current) return;
+    const container = tabsContainerRef.current;
+    const scrollAmount = 300;
+    container.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
   const loadStats = async () => {
     if (!profile) return;
@@ -164,13 +209,61 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-[#1a1a1a] overflow-hidden">
-          <div className="border-b border-gray-200 dark:border-[#1a1a1a]">
-            <nav className="flex">
+          <div className="border-b border-gray-200 dark:border-[#1a1a1a] relative">
+            {/* Left gradient fade */}
+            {showLeftArrow && (
+              <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-[#111111] to-transparent pointer-events-none z-10" />
+            )}
+
+            {/* Right gradient fade */}
+            {showRightArrow && (
+              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-[#111111] to-transparent pointer-events-none z-10" />
+            )}
+
+            {/* Left scroll arrow */}
+            {showLeftArrow && (
+              <button
+                onClick={() => scrollTabs('left')}
+                className="absolute left-0 top-0 bottom-0 z-20 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-sm px-3 flex items-center hover:bg-white dark:hover:bg-[#111111] transition shadow-sm"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              </button>
+            )}
+
+            {/* Right scroll arrow */}
+            {showRightArrow && (
+              <button
+                onClick={() => scrollTabs('right')}
+                className="absolute right-0 top-0 bottom-0 z-20 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-sm px-3 flex items-center hover:bg-white dark:hover:bg-[#111111] transition shadow-sm"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              </button>
+            )}
+
+            <nav 
+              ref={tabsContainerRef}
+              className="flex overflow-x-auto scrollbar-hide scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               {tabs.filter(t => t.show).map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    // Scroll active tab into view
+                    setTimeout(() => {
+                      const button = tabsContainerRef.current?.querySelector(
+                        `button[data-tab-id="${tab.id}"]`
+                      ) as HTMLElement;
+                      if (button) {
+                        button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                      }
+                    }, 100);
+                  }}
+                  data-tab-id={tab.id}
+                  className={`flex items-center gap-2 px-6 py-4 font-medium transition whitespace-nowrap flex-shrink-0 ${
                     activeTab === tab.id
                       ? 'text-emerald-600 border-b-2 border-emerald-600'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
@@ -184,28 +277,30 @@ export default function Dashboard() {
           </div>
 
           <div className="p-6">
-            {activeTab === 'marketplace' && <SolutionsMarketplace />}
-            {activeTab === 'rfp' && <ProcurementRFP />}
-            {activeTab === 'funding' && <FundingOpportunities />}
-            {activeTab === 'connections' && <ConnectionsManager />}
-            {activeTab === 'projects' && <ProjectsManager />}
-            {activeTab === 'timeline' && <ProjectTimeline />}
-            {activeTab === 'tasks' && <TaskManager />}
-            {activeTab === 'documents' && <DocumentManager />}
-            {activeTab === 'workflows' && <WorkflowAutomation />}
-            {activeTab === 'audit' && <SecurityAuditLog />}
-            {activeTab === 'compliance' && <ComplianceTracker />}
-            {activeTab === 'privacy' && <DataPrivacy />}
-            {activeTab === 'security' && <SecurityManagement />}
-            {activeTab === 'financial' && <FinancialDashboard />}
-            {activeTab === 'budget' && <BudgetPlanner />}
-            {activeTab === 'analytics' && <AnalyticsDashboard />}
-            {activeTab === 'roi' && <ROICalculator />}
-            {activeTab === 'benchmarks' && <BenchmarkingTool />}
-            {activeTab === 'ratings' && <VendorRatings />}
-            {activeTab === 'contracts' && <ContractTemplates />}
-            {activeTab === 'messages' && <MessagingSystem />}
-            {activeTab === 'profile' && <ProfileManager />}
+            <Suspense fallback={<LoadingFallback />}>
+              {activeTab === 'marketplace' && <SolutionsMarketplace />}
+              {activeTab === 'rfp' && <ProcurementRFP />}
+              {activeTab === 'funding' && <FundingOpportunities />}
+              {activeTab === 'connections' && <ConnectionsManager />}
+              {activeTab === 'projects' && <ProjectsManager />}
+              {activeTab === 'timeline' && <ProjectTimeline />}
+              {activeTab === 'tasks' && <TaskManager />}
+              {activeTab === 'documents' && <DocumentManager />}
+              {activeTab === 'workflows' && <WorkflowAutomation />}
+              {activeTab === 'audit' && <SecurityAuditLog />}
+              {activeTab === 'compliance' && <ComplianceTracker />}
+              {activeTab === 'privacy' && <DataPrivacy />}
+              {activeTab === 'security' && <SecurityManagement />}
+              {activeTab === 'financial' && <FinancialDashboard />}
+              {activeTab === 'budget' && <BudgetPlanner />}
+              {activeTab === 'analytics' && <AnalyticsDashboard />}
+              {activeTab === 'roi' && <ROICalculator />}
+              {activeTab === 'benchmarks' && <BenchmarkingTool />}
+              {activeTab === 'ratings' && <VendorRatings />}
+              {activeTab === 'contracts' && <ContractTemplates />}
+              {activeTab === 'messages' && <MessagingSystem />}
+              {activeTab === 'profile' && <ProfileManager />}
+            </Suspense>
           </div>
         </div>
       </div>
