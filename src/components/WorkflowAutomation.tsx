@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Workflow, Play, Plus, Edit2, Trash2, Copy, CheckCircle2, Clock, Activity } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface WorkflowTemplate {
   id: string;
@@ -39,6 +40,7 @@ interface ActivityLog {
 
 export default function WorkflowAutomation() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [templates, setTemplates] = useState<WorkflowTemplate[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
@@ -260,11 +262,11 @@ export default function WorkflowAutomation() {
         },
       });
 
-      alert(`Workflow "${template.name}" applied successfully! Created ${template.default_tasks.length} tasks and ${template.default_milestones.length} milestones.`);
+      showSuccess(`Workflow "${template.name}" applied successfully! Created ${template.default_tasks.length} tasks and ${template.default_milestones.length} milestones.`);
       loadActivityLog();
     } catch (error) {
       console.error('Error applying template:', error);
-      alert('Failed to apply workflow template');
+      showError('Failed to apply workflow template');
     }
   };
 

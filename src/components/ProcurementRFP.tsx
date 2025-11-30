@@ -19,6 +19,7 @@ import {
   CheckSquare,
   ExternalLink,
 } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface RFP {
   id: string;
@@ -56,6 +57,7 @@ interface Bid {
 
 export default function ProcurementRFP() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [rfps, setRfps] = useState<RFP[]>([]);
   const [myBids, setMyBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
@@ -418,7 +420,7 @@ function CreateRFPModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
       onSuccess();
     } catch (error) {
       console.error('Error creating RFP:', error);
-      alert('Failed to create RFP');
+      showError('Failed to create RFP');
     } finally {
       setSaving(false);
     }
@@ -849,12 +851,12 @@ function RFPDetailModal({
         .eq('rfp_id', rfp.id)
         .neq('id', bid.id);
 
-      alert('Project created successfully! Redirecting to projects...');
+      showSuccess('Project created successfully! Redirecting to projects...');
       onUpdate();
       onClose();
     } catch (error) {
       console.error('Error creating project:', error);
-      alert('Failed to create project');
+      showError('Failed to create project');
     } finally {
       setCreatingProject(false);
     }
@@ -916,12 +918,12 @@ function SubmitBidModal({ rfp, onClose, onSuccess }: { rfp: RFP; onClose: () => 
       ]);
 
       if (error) throw error;
-      alert('Proposal submitted successfully!');
+      showSuccess('Proposal submitted successfully!');
       onSuccess();
       onClose();
     } catch (error) {
       console.error('Error submitting bid:', error);
-      alert('Failed to submit proposal');
+      showError('Failed to submit proposal');
     } finally {
       setSubmitting(false);
     }

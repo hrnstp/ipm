@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Profile } from '../lib/supabase';
 import { Send, Search, Mail, MailOpen, X, ArrowLeft } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface Message {
   id: string;
@@ -18,6 +19,7 @@ interface Message {
 
 export default function MessagingSystem() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [filter, setFilter] = useState<'inbox' | 'sent'>('inbox');
@@ -164,10 +166,10 @@ export default function MessagingSystem() {
 
         setShowCompose(false);
         loadMessages();
-        alert('Message sent successfully!');
+        showSuccess('Message sent successfully!');
       } catch (error) {
         console.error('Error sending message:', error);
-        alert('Failed to send message');
+        showError('Failed to send message');
       } finally {
         setSending(false);
       }

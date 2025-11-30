@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Municipality, Integrator } from '../lib/supabase';
 import { User, Building2, Save, Globe, MapPin, Users, Briefcase } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 export default function ProfileManager() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [roleData, setRoleData] = useState<Municipality | Integrator | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -138,10 +140,10 @@ export default function ProfileManager() {
           .eq('id', roleData.id);
       }
 
-      alert('Profile updated successfully!');
+      showSuccess('Profile updated successfully!');
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to update profile');
+      showError('Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -179,54 +181,54 @@ export default function ProfileManager() {
   ];
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-600">Loading profile...</div>;
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Loading profile...</div>;
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-white border border-slate-200 rounded-xl p-6">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <User className="w-6 h-6 text-emerald-600" />
-          <h3 className="text-xl font-bold text-slate-900">Basic Information</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Basic Information</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
             <input
               type="text"
               value={profileForm.full_name}
               onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Organization</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Organization</label>
             <input
               type="text"
               value={profileForm.organization}
               onChange={(e) => setProfileForm({ ...profileForm, organization: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
             <input
               type="text"
               value={profileForm.country}
               onChange={(e) => setProfileForm({ ...profileForm, country: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Region</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Region</label>
             <select
               value={profileForm.region}
               onChange={(e) => setProfileForm({ ...profileForm, region: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="">Select Region</option>
               {globalSouthRegions.map((r) => (
@@ -237,51 +239,51 @@ export default function ProfileManager() {
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-slate-700 mb-1">Bio</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
           <textarea
             rows={3}
             value={profileForm.bio}
             onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder="Tell others about yourself and your organization..."
           />
         </div>
       </div>
 
       {profile?.role === 'municipality' && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-6">
             <Building2 className="w-6 h-6 text-emerald-600" />
-            <h3 className="text-xl font-bold text-slate-900">Municipality Details</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Municipality Details</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">City Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City Name</label>
               <input
                 type="text"
                 value={municipalityForm.city_name}
                 onChange={(e) => setMunicipalityForm({ ...municipalityForm, city_name: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Population</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Population</label>
               <input
                 type="number"
                 value={municipalityForm.population}
                 onChange={(e) => setMunicipalityForm({ ...municipalityForm, population: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Budget Range</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Budget Range</label>
               <select
                 value={municipalityForm.budget_range}
                 onChange={(e) => setMunicipalityForm({ ...municipalityForm, budget_range: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="">Select Range</option>
                 <option value="< $50k">Less than $50k</option>
@@ -293,21 +295,21 @@ export default function ProfileManager() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Language</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Language</label>
               <input
                 type="text"
                 value={municipalityForm.language}
                 onChange={(e) => setMunicipalityForm({ ...municipalityForm, language: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Priorities</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priorities</label>
             <div className="grid grid-cols-2 gap-2">
               {smartCityPriorities.map((priority) => (
-                <label key={priority} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer">
+                <label key={priority} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer">
                   <input
                     type="checkbox"
                     checked={municipalityForm.priorities.includes(priority)}
@@ -324,9 +326,9 @@ export default function ProfileManager() {
                         });
                       }
                     }}
-                    className="rounded text-emerald-600 focus:ring-emerald-500"
+                    className="rounded text-emerald-600 focus:ring-emerald-500 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
                   />
-                  <span className="text-sm text-slate-700">{priority}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{priority}</span>
                 </label>
               ))}
             </div>
@@ -335,29 +337,29 @@ export default function ProfileManager() {
       )}
 
       {profile?.role === 'integrator' && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-6">
             <Briefcase className="w-6 h-6 text-emerald-600" />
-            <h3 className="text-xl font-bold text-slate-900">Integrator Details</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Integrator Details</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Name</label>
               <input
                 type="text"
                 value={integratorForm.company_name}
                 onChange={(e) => setIntegratorForm({ ...integratorForm, company_name: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Capacity</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capacity</label>
               <select
                 value={integratorForm.capacity}
                 onChange={(e) => setIntegratorForm({ ...integratorForm, capacity: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="">Select Capacity</option>
                 <option value="1-2 projects">1-2 projects</option>
@@ -369,10 +371,10 @@ export default function ProfileManager() {
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Expertise Areas</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expertise Areas</label>
             <div className="grid grid-cols-2 gap-2">
               {expertiseAreas.map((area) => (
-                <label key={area} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer">
+                <label key={area} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer">
                   <input
                     type="checkbox"
                     checked={integratorForm.expertise_areas.includes(area)}
@@ -389,19 +391,19 @@ export default function ProfileManager() {
                         });
                       }
                     }}
-                    className="rounded text-emerald-600 focus:ring-emerald-500"
+                    className="rounded text-emerald-600 focus:ring-emerald-500 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
                   />
-                  <span className="text-sm text-slate-700">{area}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{area}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Service Regions</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Service Regions</label>
             <div className="grid grid-cols-2 gap-2">
               {globalSouthRegions.map((region) => (
-                <label key={region} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer">
+                <label key={region} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer">
                   <input
                     type="checkbox"
                     checked={integratorForm.service_regions.includes(region)}
@@ -418,9 +420,9 @@ export default function ProfileManager() {
                         });
                       }
                     }}
-                    className="rounded text-emerald-600 focus:ring-emerald-500"
+                    className="rounded text-emerald-600 focus:ring-emerald-500 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
                   />
-                  <span className="text-sm text-slate-700">{region}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{region}</span>
                 </label>
               ))}
             </div>

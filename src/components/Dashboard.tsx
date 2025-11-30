@@ -5,7 +5,7 @@ import {
   Search, Users, FolderOpen, TrendingUp, Mail, 
   DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, 
   BarChart3, Target, Calendar, CheckSquare, Workflow, Shield, 
-  ShieldCheck, Lock, Sparkles, User
+  ShieldCheck, Lock, Sparkles, User, Settings
 } from 'lucide-react';
 import { isValidUUID } from '../shared/utils/validators';
 
@@ -37,6 +37,7 @@ const SecurityAuditLog = lazy(() => import('./SecurityAuditLog'));
 const ComplianceTracker = lazy(() => import('./ComplianceTracker'));
 const DataPrivacy = lazy(() => import('./DataPrivacy'));
 const SecurityManagement = lazy(() => import('./SecurityManagement'));
+const SettingsPage = lazy(() => import('./Settings'));
 
 // Skeleton loading component
 const SkeletonLoader = () => (
@@ -50,7 +51,7 @@ const SkeletonLoader = () => (
   </div>
 );
 
-type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows' | 'audit' | 'compliance' | 'privacy' | 'security';
+type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows' | 'audit' | 'compliance' | 'privacy' | 'security' | 'settings';
 
 // Define section structure
 const SECTIONS = [
@@ -97,6 +98,7 @@ const getSectionItems = (sectionId: string, profile: any, unreadMessages: number
       { id: 'audit', label: 'Audit Log', icon: Shield, show: true },
       { id: 'compliance', label: 'Compliance', icon: ShieldCheck, show: true },
       { id: 'privacy', label: 'Privacy', icon: Lock, show: true },
+      { id: 'settings', label: 'Settings', icon: Settings, show: true },
     ],
   };
 
@@ -127,6 +129,7 @@ const findSectionForTab = (tab: Tab): string => {
     audit: 'security',
     compliance: 'security',
     privacy: 'security',
+    settings: 'security',
     profile: 'overview',
   };
   return sectionMap[tab] || 'overview';
@@ -254,6 +257,7 @@ export default function Dashboard() {
                   {activeTab === 'contracts' && <ContractTemplates />}
                   {activeTab === 'messages' && <MessagingSystem />}
                   {activeTab === 'profile' && <ProfileManager />}
+                  {activeTab === 'settings' && <SettingsPage />}
                 </Suspense>
               </div>
             </div>

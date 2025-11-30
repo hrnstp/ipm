@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Connection, Profile } from '../lib/supabase';
 import { UserPlus, Check, X, Send, Users, MessageCircle } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 export default function ConnectionsManager() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [connections, setConnections] = useState<(Connection & {
     initiator: Profile;
     recipient: Profile;
@@ -77,7 +79,7 @@ export default function ConnectionsManager() {
       setShowNewConnection(false);
     } catch (error) {
       console.error('Error sending connection:', error);
-      alert('Failed to send connection request');
+      showError('Failed to send connection request');
     }
   };
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { FileText, Search, Copy, Eye, X, Download, Plus } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface ContractTemplate {
   id: string;
@@ -17,6 +18,7 @@ interface ContractTemplate {
 
 export default function ContractTemplates() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [templates, setTemplates] = useState<ContractTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,10 +74,10 @@ export default function ContractTemplates() {
   const copyToClipboard = async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
-      alert('Template copied to clipboard!');
+      showSuccess('Template copied to clipboard!');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      alert('Failed to copy template');
+      showError('Failed to copy template');
     }
   };
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { DollarSign, Save, Plus, Trash2, Calculator, PieChart, TrendingUp, X } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface BudgetEstimate {
   id: string;
@@ -32,6 +33,7 @@ interface Solution {
 
 export default function BudgetPlanner() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [estimates, setEstimates] = useState<BudgetEstimate[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [solutions, setSolutions] = useState<Solution[]>([]);
@@ -79,7 +81,7 @@ export default function BudgetPlanner() {
       await loadData();
     } catch (error) {
       console.error('Error deleting estimate:', error);
-      alert('Failed to delete budget estimate');
+      showError('Failed to delete budget estimate');
     }
   };
 
@@ -295,7 +297,7 @@ function CreateBudgetModal({
       onSuccess();
     } catch (error) {
       console.error('Error creating budget estimate:', error);
-      alert('Failed to create budget estimate');
+      showError('Failed to create budget estimate');
     } finally {
       setSaving(false);
     }

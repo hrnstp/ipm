@@ -117,10 +117,10 @@ export default function Auth() {
                 <input
                   type="email"
                   {...signInForm.register('email')}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
                     signInForm.formState.errors.email
                       ? 'border-red-500 dark:border-red-500'
-                      : 'border-slate-300'
+                      : 'border-gray-300 dark:border-gray-700'
                   }`}
                 />
                 {signInForm.formState.errors.email && (
@@ -137,10 +137,10 @@ export default function Auth() {
                 <input
                   type="password"
                   {...signInForm.register('password')}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
                     signInForm.formState.errors.password
                       ? 'border-red-500 dark:border-red-500'
-                      : 'border-slate-300'
+                      : 'border-gray-300 dark:border-gray-700'
                   }`}
                 />
                 {signInForm.formState.errors.password && (
@@ -271,10 +271,10 @@ export default function Auth() {
                 <input
                   type="email"
                   {...signUpForm.register('email')}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
                     signUpForm.formState.errors.email
                       ? 'border-red-500 dark:border-red-500'
-                      : 'border-slate-300'
+                      : 'border-gray-300 dark:border-gray-700'
                   }`}
                 />
                 {signUpForm.formState.errors.email && (
@@ -291,10 +291,10 @@ export default function Auth() {
                 <input
                   type="password"
                   {...signUpForm.register('password')}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
                     signUpForm.formState.errors.password
                       ? 'border-red-500 dark:border-red-500'
-                      : 'border-slate-300'
+                      : 'border-gray-300 dark:border-gray-700'
                   }`}
                 />
                 {signUpForm.formState.errors.password && (

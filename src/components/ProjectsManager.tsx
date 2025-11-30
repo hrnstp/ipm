@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Project, SmartSolution, Municipality, Integrator } from '../lib/supabase';
 import { FolderOpen, Plus, X, Clock, TrendingUp, MapPin, DollarSign, BookOpen, Lightbulb, GraduationCap, FileText, AlertTriangle, CheckCircle, ExternalLink, Award } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 export default function ProjectsManager() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -112,7 +114,7 @@ export default function ProjectsManager() {
         setShowCreateModal(false);
       } catch (error) {
         console.error('Error creating project:', error);
-        alert('Failed to create project');
+        showError('Failed to create project');
       } finally {
         setSubmitting(false);
       }
@@ -496,7 +498,7 @@ export default function ProjectsManager() {
         loadTransfers();
       } catch (error) {
         console.error('Error adding transfer:', error);
-        alert('Failed to add technology transfer');
+        showError('Failed to add technology transfer');
       }
     };
 
@@ -528,7 +530,7 @@ export default function ProjectsManager() {
         loadMilestones();
       } catch (error) {
         console.error('Error adding milestone:', error);
-        alert('Failed to add payment milestone');
+        showError('Failed to add payment milestone');
       }
     };
 
@@ -548,7 +550,7 @@ export default function ProjectsManager() {
         loadMilestones();
       } catch (error) {
         console.error('Error updating milestone:', error);
-        alert('Failed to update milestone status');
+        showError('Failed to update milestone status');
       }
     };
 
