@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Shield, AlertTriangle, Plus, Users } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface Incident {
   id: string;
@@ -24,6 +25,7 @@ interface AccessPolicy {
 
 export default function SecurityManagement() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [policies, setPolicies] = useState<AccessPolicy[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,27 +82,29 @@ export default function SecurityManagement() {
         incident_type: 'other',
       });
       setShowIncidentForm(false);
+      showSuccess('Incident reported successfully');
       loadData();
     } catch (error) {
       console.error('Error creating incident:', error);
+      showError('Failed to report incident');
     }
   };
 
   const getSeverityColor = (severity: Incident['severity']) => {
     switch (severity) {
       case 'critical':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
       case 'high':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
       default:
-        return 'bg-slate-100 text-slate-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-600">Loading security data...</div>;
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Loading security data...</div>;
   }
 
   return (
@@ -109,8 +113,8 @@ export default function SecurityManagement() {
         <div className="flex items-center gap-4">
           <Shield className="w-6 h-6 text-blue-600" />
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Security Management</h2>
-            <p className="text-sm text-slate-600">Incidents and access control</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Security Management</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Incidents and access control</p>
           </div>
         </div>
 
@@ -125,15 +129,15 @@ export default function SecurityManagement() {
         )}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-        <div className="border-b border-slate-200">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+        <div className="border-b border-gray-200 dark:border-gray-800">
           <nav className="flex">
             <button
               onClick={() => setActiveTab('incidents')}
               className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
                 activeTab === 'incidents'
                   ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
               <AlertTriangle className="w-5 h-5" />
@@ -144,7 +148,7 @@ export default function SecurityManagement() {
               className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
                 activeTab === 'policies'
                   ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
               }`}
             >
               <Users className="w-5 h-5" />
@@ -157,11 +161,11 @@ export default function SecurityManagement() {
           {activeTab === 'incidents' && (
             <div className="space-y-4">
               {showIncidentForm && (
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Report Security Incident</h3>
+                <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Report Security Incident</h3>
                   <form onSubmit={handleIncidentSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Title
                       </label>
                       <input
@@ -169,12 +173,12 @@ export default function SecurityManagement() {
                         required
                         value={incidentForm.title}
                         onChange={(e) => setIncidentForm({ ...incidentForm, title: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Description
                       </label>
                       <textarea
@@ -182,19 +186,19 @@ export default function SecurityManagement() {
                         value={incidentForm.description}
                         onChange={(e) => setIncidentForm({ ...incidentForm, description: e.target.value })}
                         rows={4}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Severity
                         </label>
                         <select
                           value={incidentForm.severity}
                           onChange={(e) => setIncidentForm({ ...incidentForm, severity: e.target.value as Incident['severity'] })}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -204,13 +208,13 @@ export default function SecurityManagement() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Incident Type
                         </label>
                         <select
                           value={incidentForm.incident_type}
                           onChange={(e) => setIncidentForm({ ...incidentForm, incident_type: e.target.value })}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                         >
                           <option value="breach">Data Breach</option>
                           <option value="malware">Malware</option>
@@ -233,7 +237,7 @@ export default function SecurityManagement() {
                       <button
                         type="button"
                         onClick={() => setShowIncidentForm(false)}
-                        className="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition"
+                        className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                       >
                         Cancel
                       </button>
@@ -245,21 +249,21 @@ export default function SecurityManagement() {
               {incidents.map((incident) => (
                 <div
                   key={incident.id}
-                  className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition"
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-gray-800"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-slate-900">{incident.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{incident.title}</h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getSeverityColor(incident.severity)}`}>
                           {incident.severity}
                         </span>
-                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
                           {incident.status}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-600 mb-2">{incident.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-slate-500">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{incident.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
                         <span>Type: {incident.incident_type.replace('_', ' ')}</span>
                         <span>Reported: {new Date(incident.reported_date).toLocaleString()}</span>
                       </div>
@@ -270,8 +274,8 @@ export default function SecurityManagement() {
 
               {incidents.length === 0 && (
                 <div className="text-center py-12">
-                  <AlertTriangle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-600">No incidents reported</p>
+                  <AlertTriangle className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-600 dark:text-gray-400">No incidents reported</p>
                 </div>
               )}
             </div>
@@ -282,19 +286,19 @@ export default function SecurityManagement() {
               {policies.map((policy) => (
                 <div
                   key={policy.id}
-                  className="border border-slate-200 rounded-lg p-4"
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900 mb-1">{policy.name}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{policy.name}</h3>
                       {policy.description && (
-                        <p className="text-sm text-slate-600 mb-3">{policy.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{policy.description}</p>
                       )}
                       <div className="flex gap-2">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 rounded text-xs font-medium">
                           {policy.resource_type}
                         </span>
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium capitalize">
+                        <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 rounded text-xs font-medium capitalize">
                           {policy.role}
                         </span>
                       </div>
@@ -305,8 +309,8 @@ export default function SecurityManagement() {
 
               {policies.length === 0 && (
                 <div className="text-center py-12">
-                  <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-600">No access policies defined</p>
+                  <Users className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-600 dark:text-gray-400">No access policies defined</p>
                 </div>
               )}
             </div>

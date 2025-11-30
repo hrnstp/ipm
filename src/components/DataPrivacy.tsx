@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Lock, Plus, Clock, CheckCircle2 } from 'lucide-react';
+import { useToast } from '../shared/hooks/useToast';
 
 interface PrivacyRequest {
   id: string;
@@ -16,6 +17,7 @@ interface PrivacyRequest {
 
 export default function DataPrivacy() {
   const { profile } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [requests, setRequests] = useState<PrivacyRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -71,27 +73,29 @@ export default function DataPrivacy() {
         notes: '',
       });
       setShowForm(false);
+      showSuccess('Privacy request submitted successfully');
       loadRequests();
     } catch (error) {
       console.error('Error creating request:', error);
+      showError('Failed to submit privacy request');
     }
   };
 
   const getStatusColor = (status: PrivacyRequest['status']) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
       case 'rejected':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
       case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
     }
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-600">Loading privacy requests...</div>;
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Loading privacy requests...</div>;
   }
 
   return (
@@ -100,8 +104,8 @@ export default function DataPrivacy() {
         <div className="flex items-center gap-4">
           <Lock className="w-6 h-6 text-blue-600" />
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Data Privacy & GDPR</h2>
-            <p className="text-sm text-slate-600">Manage data subject requests</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Data Privacy & GDPR</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Manage data subject requests</p>
           </div>
         </div>
 
@@ -115,17 +119,17 @@ export default function DataPrivacy() {
       </div>
 
       {showForm && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Submit Privacy Request</h3>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Submit Privacy Request</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Request Type
               </label>
               <select
                 value={formData.request_type}
                 onChange={(e) => setFormData({ ...formData, request_type: e.target.value as PrivacyRequest['request_type'] })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="access">Access My Data</option>
                 <option value="deletion">Delete My Data</option>
@@ -136,27 +140,27 @@ export default function DataPrivacy() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Data Categories (comma-separated)
               </label>
               <input
                 type="text"
                 value={formData.data_categories}
                 onChange={(e) => setFormData({ ...formData, data_categories: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="e.g., profile, projects, messages"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Additional Details
               </label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="Provide any additional information..."
               />
             </div>
@@ -171,7 +175,7 @@ export default function DataPrivacy() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition"
+                className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
               >
                 Cancel
               </button>
@@ -184,19 +188,19 @@ export default function DataPrivacy() {
         {requests.map((request) => (
           <div
             key={request.id}
-            className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition"
+            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg transition"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-slate-900 capitalize">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
                     {request.request_type.replace('_', ' ')} Request
                   </h3>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
                     {request.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
                     Submitted: {new Date(request.requested_date).toLocaleDateString()}
@@ -211,14 +215,14 @@ export default function DataPrivacy() {
                 {request.data_categories.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3">
                     {request.data_categories.map((cat, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs">
+                      <span key={idx} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs">
                         {cat}
                       </span>
                     ))}
                   </div>
                 )}
                 {request.notes && (
-                  <p className="text-sm text-slate-600">{request.notes}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{request.notes}</p>
                 )}
               </div>
             </div>
@@ -226,9 +230,9 @@ export default function DataPrivacy() {
         ))}
 
         {requests.length === 0 && (
-          <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-            <Lock className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-600">No privacy requests</p>
+          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+            <Lock className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">No privacy requests</p>
           </div>
         )}
       </div>

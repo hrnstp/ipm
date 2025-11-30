@@ -82,22 +82,22 @@ export default function SecurityAuditLog() {
   const getSeverityColor = (severity: AuditLog['severity']) => {
     switch (severity) {
       case 'critical':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
       case 'warning':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
       default:
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
     }
   };
 
   const getStatusColor = (status: AuditLog['status']) => {
     switch (status) {
       case 'success':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
       case 'failure':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
       case 'blocked':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
     }
   };
 
@@ -126,7 +126,7 @@ export default function SecurityAuditLog() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-600">Loading audit logs...</div>;
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Loading audit logs...</div>;
   }
 
   return (
@@ -135,8 +135,8 @@ export default function SecurityAuditLog() {
         <div className="flex items-center gap-4">
           <Shield className="w-6 h-6 text-blue-600" />
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Security Audit Log</h2>
-            <p className="text-sm text-slate-600">Monitor security events and activities</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Security Audit Log</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Monitor security events and activities</p>
           </div>
         </div>
       </div>
@@ -167,20 +167,20 @@ export default function SecurityAuditLog() {
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-6">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search events..."
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
 
           <select
             value={filterSeverity}
             onChange={(e) => setFilterSeverity(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">All Severities</option>
             <option value="info">Info</option>
@@ -191,7 +191,7 @@ export default function SecurityAuditLog() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">All Statuses</option>
             <option value="success">Success</option>
@@ -202,7 +202,7 @@ export default function SecurityAuditLog() {
           <select
             value={filterAction}
             onChange={(e) => setFilterAction(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">All Actions</option>
             {uniqueActions.map((action) => (
@@ -217,24 +217,24 @@ export default function SecurityAuditLog() {
           {filteredLogs.map((log) => (
             <div
               key={log.id}
-              className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition bg-white dark:bg-gray-800"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3 flex-1">
                   <div className="mt-1">{getSeverityIcon(log.severity)}</div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-semibold text-slate-900">{log.action_type}</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{log.action_type}</span>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(log.severity)}`}>
                         {log.severity}
                       </span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(log.status)}`}>
+                      <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${getStatusColor(log.status)}`}>
                         {getStatusIcon(log.status)}
-                        <span className="ml-1">{log.status}</span>
+                        <span>{log.status}</span>
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-slate-600">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-600 dark:text-gray-400">
                       <div>
                         <span className="font-medium">Resource:</span> {log.resource_type}
                       </div>
@@ -256,10 +256,10 @@ export default function SecurityAuditLog() {
 
                     {log.details && Object.keys(log.details).length > 0 && (
                       <details className="mt-3">
-                        <summary className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700">
+                        <summary className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                           View Details
                         </summary>
-                        <pre className="mt-2 p-3 bg-slate-50 rounded text-xs overflow-x-auto">
+                        <pre className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded text-xs overflow-x-auto text-gray-900 dark:text-gray-100">
                           {JSON.stringify(log.details, null, 2)}
                         </pre>
                       </details>
@@ -273,8 +273,8 @@ export default function SecurityAuditLog() {
 
         {filteredLogs.length === 0 && (
           <div className="text-center py-12">
-            <Shield className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-600">No audit logs found</p>
+            <Shield className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">No audit logs found</p>
           </div>
         )}
       </div>
