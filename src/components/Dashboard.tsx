@@ -1,8 +1,18 @@
-import { useState, useEffect, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, lazy, Suspense, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Globe2, LogOut, Search, Plus, MessageSquare, Users, FolderOpen, TrendingUp, Mail, DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, BarChart3, Target, Calendar, CheckSquare, Workflow, Shield, ShieldCheck, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
+import { 
+  Search, Users, FolderOpen, TrendingUp, Mail, 
+  DollarSign, Calculator, Lightbulb, FileText, Award, Briefcase, 
+  BarChart3, Target, Calendar, CheckSquare, Workflow, Shield, 
+  ShieldCheck, Lock, Sparkles, User
+} from 'lucide-react';
+import { isValidUUID } from '../shared/utils/validators';
+
+// Navigation components
+import TopNavBar from './navigation/TopNavBar';
+import ContextualSidebar from './navigation/ContextualSidebar';
+import GlobalSearch from './navigation/GlobalSearch';
 
 // Lazy load all components for better performance
 const SolutionsMarketplace = lazy(() => import('./SolutionsMarketplace'));
@@ -28,280 +38,226 @@ const ComplianceTracker = lazy(() => import('./ComplianceTracker'));
 const DataPrivacy = lazy(() => import('./DataPrivacy'));
 const SecurityManagement = lazy(() => import('./SecurityManagement'));
 
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center p-8">
-    <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+// Skeleton loading component
+const SkeletonLoader = () => (
+  <div className="space-y-4 animate-pulse">
+    <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/3"></div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="h-48 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+      ))}
+    </div>
   </div>
 );
 
 type Tab = 'marketplace' | 'connections' | 'projects' | 'messages' | 'profile' | 'funding' | 'budget' | 'financial' | 'rfp' | 'ratings' | 'contracts' | 'analytics' | 'roi' | 'benchmarks' | 'timeline' | 'tasks' | 'documents' | 'workflows' | 'audit' | 'compliance' | 'privacy' | 'security';
 
+// Define section structure
+const SECTIONS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'network', label: 'Network' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'finance', label: 'Finance' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'security', label: 'Security' },
+];
+
+// Map sections to their sidebar items
+const getSectionItems = (sectionId: string, profile: any, unreadMessages: number) => {
+  const itemsMap: Record<string, { id: Tab; label: string; icon: any; show: boolean; badge?: number }[]> = {
+    overview: [
+      { id: 'marketplace', label: 'Solutions', icon: Sparkles, show: true },
+      { id: 'rfp', label: 'RFP Listings', icon: FileText, show: true },
+      { id: 'funding', label: 'Funding', icon: Lightbulb, show: true },
+    ],
+    network: [
+      { id: 'connections', label: 'Connections', icon: Users, show: true },
+      { id: 'messages', label: 'Messages', icon: Mail, show: true, badge: unreadMessages },
+      { id: 'ratings', label: 'Vendor Ratings', icon: Award, show: true },
+    ],
+    projects: [
+      { id: 'projects', label: 'All Projects', icon: FolderOpen, show: true },
+      { id: 'timeline', label: 'Timeline', icon: Calendar, show: true },
+      { id: 'tasks', label: 'Tasks', icon: CheckSquare, show: true },
+      { id: 'documents', label: 'Documents', icon: FileText, show: true },
+      { id: 'workflows', label: 'Workflows', icon: Workflow, show: true },
+    ],
+    finance: [
+      { id: 'financial', label: 'Dashboard', icon: DollarSign, show: profile?.role === 'municipality' || profile?.role === 'developer' },
+      { id: 'budget', label: 'Budget Planner', icon: Calculator, show: profile?.role === 'municipality' || profile?.role === 'developer' },
+      { id: 'contracts', label: 'Contracts', icon: Briefcase, show: true },
+    ],
+    analytics: [
+      { id: 'analytics', label: 'Overview', icon: BarChart3, show: true },
+      { id: 'roi', label: 'ROI Calculator', icon: TrendingUp, show: profile?.role === 'municipality' },
+      { id: 'benchmarks', label: 'Benchmarks', icon: Target, show: profile?.role === 'municipality' },
+    ],
+    security: [
+      { id: 'security', label: 'Overview', icon: Shield, show: true },
+      { id: 'audit', label: 'Audit Log', icon: Shield, show: true },
+      { id: 'compliance', label: 'Compliance', icon: ShieldCheck, show: true },
+      { id: 'privacy', label: 'Privacy', icon: Lock, show: true },
+    ],
+  };
+
+  return (itemsMap[sectionId] || []).filter(item => item.show);
+};
+
+// Find which section contains a tab
+const findSectionForTab = (tab: Tab): string => {
+  const sectionMap: Record<Tab, string> = {
+    marketplace: 'overview',
+    rfp: 'overview',
+    funding: 'overview',
+    connections: 'network',
+    messages: 'network',
+    ratings: 'network',
+    projects: 'projects',
+    timeline: 'projects',
+    tasks: 'projects',
+    documents: 'projects',
+    workflows: 'projects',
+    financial: 'finance',
+    budget: 'finance',
+    contracts: 'finance',
+    analytics: 'analytics',
+    roi: 'analytics',
+    benchmarks: 'analytics',
+    security: 'security',
+    audit: 'security',
+    compliance: 'security',
+    privacy: 'security',
+    profile: 'overview',
+  };
+  return sectionMap[tab] || 'overview';
+};
+
 export default function Dashboard() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('marketplace');
-  const [stats, setStats] = useState({
-    solutions: 0,
-    connections: 0,
-    projects: 0,
-    municipalities: 0,
-  });
-  const tabsContainerRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
+  const [activeSection, setActiveSection] = useState('overview');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
+  // Load unread messages count
   useEffect(() => {
-    loadStats();
-  }, [profile]);
+    const loadUnreadMessages = async () => {
+      if (!profile?.id || !isValidUUID(profile.id)) return;
 
-  useEffect(() => {
-    const checkScrollButtons = () => {
-      if (!tabsContainerRef.current) return;
-      const container = tabsContainerRef.current;
-      const hasOverflow = container.scrollWidth > container.clientWidth;
-      setShowLeftArrow(hasOverflow && container.scrollLeft > 0);
-      setShowRightArrow(
-        hasOverflow && container.scrollLeft < container.scrollWidth - container.clientWidth - 10
-      );
+      try {
+        const { count } = await supabase
+          .from('messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('recipient_id', profile.id)
+          .eq('read', false);
+
+        setUnreadMessages(count || 0);
+      } catch (error) {
+        console.error('Error loading unread messages:', error);
+      }
     };
 
-    const container = tabsContainerRef.current;
-    if (container) {
-      // Initial check after a short delay to ensure DOM is ready
-      setTimeout(checkScrollButtons, 100);
-      container.addEventListener('scroll', checkScrollButtons);
-      window.addEventListener('resize', checkScrollButtons);
-      return () => {
-        container.removeEventListener('scroll', checkScrollButtons);
-        window.removeEventListener('resize', checkScrollButtons);
-      };
-    }
-  }, [profile]); // Re-check when profile changes (affects visible tabs)
+    loadUnreadMessages();
+    
+    // Poll for new messages every 30 seconds
+    const interval = setInterval(loadUnreadMessages, 30000);
+    return () => clearInterval(interval);
+  }, [profile]);
 
-  const scrollTabs = (direction: 'left' | 'right') => {
-    if (!tabsContainerRef.current) return;
-    const container = tabsContainerRef.current;
-    const scrollAmount = 300;
-    container.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  };
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
 
-  const loadStats = async () => {
-    if (!profile) return;
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-    try {
-      const [solutionsRes, connectionsRes, projectsRes, municipalitiesRes] = await Promise.all([
-        supabase.from('smart_solutions').select('id', { count: 'exact', head: true }),
-        supabase.from('connections').select('id', { count: 'exact', head: true })
-          .or(`initiator_id.eq.${profile.id},recipient_id.eq.${profile.id}`),
-        supabase.from('projects').select('id', { count: 'exact', head: true }),
-        supabase.from('municipalities').select('id', { count: 'exact', head: true }),
-      ]);
+  // Update section when tab changes
+  useEffect(() => {
+    setActiveSection(findSectionForTab(activeTab));
+  }, [activeTab]);
 
-      setStats({
-        solutions: solutionsRes.count || 0,
-        connections: connectionsRes.count || 0,
-        projects: projectsRes.count || 0,
-        municipalities: municipalitiesRes.count || 0,
-      });
-    } catch (error) {
-      console.error('Error loading stats:', error);
+  const handleSectionChange = (sectionId: string) => {
+    setActiveSection(sectionId);
+    // Set first item of section as active tab
+    const items = getSectionItems(sectionId, profile, unreadMessages);
+    if (items.length > 0) {
+      setActiveTab(items[0].id);
     }
   };
 
-  const tabs = [
-    { id: 'marketplace' as const, label: 'Solutions', icon: Search, show: true },
-    { id: 'rfp' as const, label: 'RFPs', icon: FileText, show: true },
-    { id: 'funding' as const, label: 'Funding', icon: Lightbulb, show: true },
-    { id: 'connections' as const, label: 'Connections', icon: Users, show: true },
-    { id: 'projects' as const, label: 'Projects', icon: FolderOpen, show: true },
-    { id: 'timeline' as const, label: 'Timeline', icon: Calendar, show: true },
-    { id: 'tasks' as const, label: 'Tasks', icon: CheckSquare, show: true },
-    { id: 'documents' as const, label: 'Documents', icon: FileText, show: true },
-    { id: 'workflows' as const, label: 'Workflows', icon: Workflow, show: true },
-    { id: 'audit' as const, label: 'Audit Log', icon: Shield, show: true },
-    { id: 'compliance' as const, label: 'Compliance', icon: ShieldCheck, show: true },
-    { id: 'privacy' as const, label: 'Privacy', icon: Lock, show: true },
-    { id: 'security' as const, label: 'Security', icon: Shield, show: true },
-    { id: 'financial' as const, label: 'Financials', icon: DollarSign, show: profile?.role === 'municipality' || profile?.role === 'developer' },
-    { id: 'budget' as const, label: 'Budget', icon: Calculator, show: profile?.role === 'municipality' || profile?.role === 'developer' },
-    { id: 'analytics' as const, label: 'Analytics', icon: BarChart3, show: true },
-    { id: 'roi' as const, label: 'ROI Calculator', icon: TrendingUp, show: profile?.role === 'municipality' },
-    { id: 'benchmarks' as const, label: 'Benchmarks', icon: Target, show: profile?.role === 'municipality' },
-    { id: 'ratings' as const, label: 'Ratings', icon: Award, show: true },
-    { id: 'contracts' as const, label: 'Contracts', icon: Briefcase, show: true },
-    { id: 'messages' as const, label: 'Messages', icon: Mail, show: true },
-    { id: 'profile' as const, label: 'Profile', icon: Globe2, show: true },
-  ];
+  const handleNavigate = useCallback((tab: string) => {
+    setActiveTab(tab as Tab);
+  }, []);
+
+  const sidebarItems = getSectionItems(activeSection, profile, unreadMessages);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
-      <nav className="bg-white dark:bg-[#111111] border-b border-gray-200 dark:border-[#1a1a1a] sticky top-0 z-50 backdrop-blur-xl bg-opacity-80 dark:bg-opacity-80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <Globe2 className="w-8 h-8 text-emerald-600" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">CityMind AI</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-500">{profile?.organization}</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
+      {/* Top Navigation Bar */}
+      <TopNavBar
+        sections={SECTIONS}
+        activeSection={activeSection}
+        onSectionChange={handleSectionChange}
+        onSearchOpen={() => setIsSearchOpen(true)}
+        onNavigate={handleNavigate}
+        unreadCount={unreadMessages}
+      />
+
+      {/* Global Search Modal */}
+      <GlobalSearch
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigate={handleNavigate}
+      />
+
+      {/* Main content area */}
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-6">
+          {/* Contextual Sidebar */}
+          <ContextualSidebar
+            title={SECTIONS.find(s => s.id === activeSection)?.label || ''}
+            items={sidebarItems}
+            activeItem={activeTab}
+            onItemClick={(itemId) => setActiveTab(itemId as Tab)}
+          />
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+              <div className="p-6">
+                <Suspense fallback={<SkeletonLoader />}>
+                  {activeTab === 'marketplace' && <SolutionsMarketplace />}
+                  {activeTab === 'rfp' && <ProcurementRFP />}
+                  {activeTab === 'funding' && <FundingOpportunities />}
+                  {activeTab === 'connections' && <ConnectionsManager />}
+                  {activeTab === 'projects' && <ProjectsManager />}
+                  {activeTab === 'timeline' && <ProjectTimeline />}
+                  {activeTab === 'tasks' && <TaskManager />}
+                  {activeTab === 'documents' && <DocumentManager />}
+                  {activeTab === 'workflows' && <WorkflowAutomation />}
+                  {activeTab === 'audit' && <SecurityAuditLog />}
+                  {activeTab === 'compliance' && <ComplianceTracker />}
+                  {activeTab === 'privacy' && <DataPrivacy />}
+                  {activeTab === 'security' && <SecurityManagement />}
+                  {activeTab === 'financial' && <FinancialDashboard />}
+                  {activeTab === 'budget' && <BudgetPlanner />}
+                  {activeTab === 'analytics' && <AnalyticsDashboard />}
+                  {activeTab === 'roi' && <ROICalculator />}
+                  {activeTab === 'benchmarks' && <BenchmarkingTool />}
+                  {activeTab === 'ratings' && <VendorRatings />}
+                  {activeTab === 'contracts' && <ContractTemplates />}
+                  {activeTab === 'messages' && <MessagingSystem />}
+                  {activeTab === 'profile' && <ProfileManager />}
+                </Suspense>
               </div>
             </div>
-
-            <div className="flex items-center gap-4">
-              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 text-sm font-medium rounded-full capitalize">
-                {profile?.role}
-              </span>
-              <ThemeToggle />
-              <button
-                onClick={() => signOut()}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm font-medium">Sign Out</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Solutions</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.solutions}</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-emerald-600" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Connections</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.connections}</p>
-              </div>
-              <Users className="w-8 h-8 text-blue-600" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Projects</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.projects}</p>
-              </div>
-              <FolderOpen className="w-8 h-8 text-orange-600" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#111111] rounded-xl p-6 border border-gray-200 dark:border-[#1a1a1a]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Municipalities</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.municipalities}</p>
-              </div>
-              <Globe2 className="w-8 h-8 text-gray-400 dark:text-gray-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-[#1a1a1a] overflow-hidden">
-          <div className="border-b border-gray-200 dark:border-[#1a1a1a] relative">
-            {/* Left gradient fade */}
-            {showLeftArrow && (
-              <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-[#111111] to-transparent pointer-events-none z-10" />
-            )}
-
-            {/* Right gradient fade */}
-            {showRightArrow && (
-              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-[#111111] to-transparent pointer-events-none z-10" />
-            )}
-
-            {/* Left scroll arrow */}
-            {showLeftArrow && (
-              <button
-                onClick={() => scrollTabs('left')}
-                className="absolute left-0 top-0 bottom-0 z-20 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-sm px-3 flex items-center hover:bg-white dark:hover:bg-[#111111] transition shadow-sm"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-              </button>
-            )}
-
-            {/* Right scroll arrow */}
-            {showRightArrow && (
-              <button
-                onClick={() => scrollTabs('right')}
-                className="absolute right-0 top-0 bottom-0 z-20 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-sm px-3 flex items-center hover:bg-white dark:hover:bg-[#111111] transition shadow-sm"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-              </button>
-            )}
-
-            <nav 
-              ref={tabsContainerRef}
-              className="flex overflow-x-auto scrollbar-hide scroll-smooth"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {tabs.filter(t => t.show).map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    // Scroll active tab into view
-                    setTimeout(() => {
-                      const button = tabsContainerRef.current?.querySelector(
-                        `button[data-tab-id="${tab.id}"]`
-                      ) as HTMLElement;
-                      if (button) {
-                        button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                      }
-                    }, 100);
-                  }}
-                  data-tab-id={tab.id}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium transition whitespace-nowrap flex-shrink-0 ${
-                    activeTab === tab.id
-                      ? 'text-emerald-600 border-b-2 border-emerald-600'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                  }`}
-                >
-                  <tab.icon className="w-5 h-5" />
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="p-6">
-            <Suspense fallback={<LoadingFallback />}>
-              {activeTab === 'marketplace' && <SolutionsMarketplace />}
-              {activeTab === 'rfp' && <ProcurementRFP />}
-              {activeTab === 'funding' && <FundingOpportunities />}
-              {activeTab === 'connections' && <ConnectionsManager />}
-              {activeTab === 'projects' && <ProjectsManager />}
-              {activeTab === 'timeline' && <ProjectTimeline />}
-              {activeTab === 'tasks' && <TaskManager />}
-              {activeTab === 'documents' && <DocumentManager />}
-              {activeTab === 'workflows' && <WorkflowAutomation />}
-              {activeTab === 'audit' && <SecurityAuditLog />}
-              {activeTab === 'compliance' && <ComplianceTracker />}
-              {activeTab === 'privacy' && <DataPrivacy />}
-              {activeTab === 'security' && <SecurityManagement />}
-              {activeTab === 'financial' && <FinancialDashboard />}
-              {activeTab === 'budget' && <BudgetPlanner />}
-              {activeTab === 'analytics' && <AnalyticsDashboard />}
-              {activeTab === 'roi' && <ROICalculator />}
-              {activeTab === 'benchmarks' && <BenchmarkingTool />}
-              {activeTab === 'ratings' && <VendorRatings />}
-              {activeTab === 'contracts' && <ContractTemplates />}
-              {activeTab === 'messages' && <MessagingSystem />}
-              {activeTab === 'profile' && <ProfileManager />}
-            </Suspense>
-          </div>
+          </main>
         </div>
       </div>
     </div>
