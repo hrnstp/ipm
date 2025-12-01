@@ -8,7 +8,7 @@ export class ConnectionService extends BaseService {
    * Получить все связи с фильтрацией
    */
   async getConnections(filters?: ConnectionFilters): Promise<ApiResponse<Connection[]>> {
-    this.logQuery('connections', 'getConnections', filters);
+    this.logQuery('connections', 'getConnections');
 
     try {
       let query = supabase
@@ -50,7 +50,7 @@ export class ConnectionService extends BaseService {
    * Создать новую связь
    */
   async createConnection(connection: Omit<Connection, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Connection>> {
-    this.logQuery('connections', 'createConnection', connection);
+    this.logQuery('connections', 'createConnection');
 
     try {
       this.validateRequired(connection, ['initiator_id', 'recipient_id', 'connection_type']);
@@ -82,7 +82,7 @@ export class ConnectionService extends BaseService {
     id: string, 
     status: 'pending' | 'accepted' | 'rejected'
   ): Promise<ApiResponse<Connection>> {
-    this.logQuery('connections', 'updateConnectionStatus', { id, status });
+    this.logQuery('connections', 'updateConnectionStatus');
 
     try {
       const { data, error } = await supabase
@@ -105,7 +105,7 @@ export class ConnectionService extends BaseService {
    * Удалить связь
    */
   async deleteConnection(id: string): Promise<ApiResponse<void>> {
-    this.logQuery('connections', 'deleteConnection', { id });
+    this.logQuery('connections', 'deleteConnection');
 
     try {
       const { error } = await supabase

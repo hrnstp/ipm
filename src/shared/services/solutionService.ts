@@ -9,7 +9,7 @@ export class SolutionService extends BaseService {
    * Получить все решения с фильтрацией
    */
   async getSolutions(filters?: SolutionFilters): Promise<ApiResponse<(SmartSolution & { developer: Profile })[]>> {
-    this.logQuery('smart_solutions', 'getSolutions', filters);
+    this.logQuery('smart_solutions', 'getSolutions');
 
     try {
       let query = supabase
@@ -61,7 +61,7 @@ export class SolutionService extends BaseService {
    * Получить решение по ID
    */
   async getSolutionById(id: string): Promise<ApiResponse<SmartSolution & { developer: Profile }>> {
-    this.logQuery('smart_solutions', 'getSolutionById', { id });
+    this.logQuery('smart_solutions', 'getSolutionById');
 
     try {
       const { data, error } = await supabase
@@ -83,7 +83,7 @@ export class SolutionService extends BaseService {
    * Создать новое решение
    */
   async createSolution(solution: Omit<SmartSolution, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<SmartSolution>> {
-    this.logQuery('smart_solutions', 'createSolution', solution);
+    this.logQuery('smart_solutions', 'createSolution');
 
     try {
       this.validateRequired(solution, ['developer_id', 'title', 'description', 'category', 'maturity_level']);
@@ -110,7 +110,7 @@ export class SolutionService extends BaseService {
    * Обновить решение
    */
   async updateSolution(id: string, updates: Partial<SmartSolution>): Promise<ApiResponse<SmartSolution>> {
-    this.logQuery('smart_solutions', 'updateSolution', { id, updates });
+    this.logQuery('smart_solutions', 'updateSolution');
 
     try {
       const { data, error } = await supabase
@@ -133,7 +133,7 @@ export class SolutionService extends BaseService {
    * Удалить решение
    */
   async deleteSolution(id: string): Promise<ApiResponse<void>> {
-    this.logQuery('smart_solutions', 'deleteSolution', { id });
+    this.logQuery('smart_solutions', 'deleteSolution');
 
     try {
       const { error } = await supabase
@@ -151,7 +151,7 @@ export class SolutionService extends BaseService {
    * Поиск решений по тексту
    */
   async searchSolutions(searchTerm: string, filters?: SolutionFilters): Promise<ApiResponse<(SmartSolution & { developer: Profile })[]>> {
-    this.logQuery('smart_solutions', 'searchSolutions', { searchTerm, filters });
+    this.logQuery('smart_solutions', 'searchSolutions');
 
     try {
       let query = supabase

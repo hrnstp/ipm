@@ -21,3 +21,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Environment files - NEVER commit secrets!
+.env
+.env.*
+!.env.example

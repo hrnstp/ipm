@@ -36,11 +36,14 @@ export abstract class BaseService {
   }
 
   /**
-   * Логирование запросов (можно расширить для интеграции с Sentry)
+   * Логирование запросов (безопасное - без данных)
+   * Для production: интеграция с Sentry или другим сервисом
    */
-  protected logQuery(table: string, operation: string, data?: unknown): void {
+  protected logQuery(table: string, operation: string): void {
+    // В production логирование отключено для безопасности
+    // Данные операций НЕ логируются чтобы избежать утечки чувствительной информации
     if (import.meta.env.DEV) {
-      console.log(`[Service] ${operation} on ${table}`, data || '');
+      console.log(`[Service] ${operation} on ${table}`);
     }
   }
 
@@ -54,7 +57,11 @@ export abstract class BaseService {
   ): ApiResponse<T> {
     if (error) {
       const serviceError = this.handleError(error, context);
-      console.error(`[Service Error] ${context}:`, serviceError);
+      // Безопасное логирование: только сообщение об ошибке, без деталей
+      // Детали ошибки могут содержать чувствительную информацию о структуре БД
+      if (import.meta.env.DEV) {
+        console.error(`[Service Error] ${context}: ${serviceError.message}`);
+      }
       return { data: null, error: error };
     }
 

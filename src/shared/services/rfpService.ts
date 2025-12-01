@@ -8,7 +8,7 @@ export class RFPService extends BaseService {
    * Получить все RFP с фильтрацией
    */
   async getRFPs(filters?: RFPFilters): Promise<ApiResponse<RFP[]>> {
-    this.logQuery('rfp_requests', 'getRFPs', filters);
+    this.logQuery('rfp_requests', 'getRFPs');
 
     try {
       let query = supabase
@@ -65,7 +65,7 @@ export class RFPService extends BaseService {
    * Получить RFP по ID
    */
   async getRFPById(id: string): Promise<ApiResponse<RFP>> {
-    this.logQuery('rfp_requests', 'getRFPById', { id });
+    this.logQuery('rfp_requests', 'getRFPById');
 
     try {
       const { data, error } = await supabase
@@ -88,7 +88,7 @@ export class RFPService extends BaseService {
    * Создать новый RFP
    */
   async createRFP(rfp: Omit<RFP, 'id' | 'created_at' | 'bid_count'>): Promise<ApiResponse<RFP>> {
-    this.logQuery('rfp_requests', 'createRFP', rfp);
+    this.logQuery('rfp_requests', 'createRFP');
 
     try {
       this.validateRequired(rfp, ['title', 'description', 'category', 'budget_min', 'budget_max', 'deadline', 'created_by']);
@@ -114,7 +114,7 @@ export class RFPService extends BaseService {
    * Обновить RFP
    */
   async updateRFP(id: string, updates: Partial<RFP>): Promise<ApiResponse<RFP>> {
-    this.logQuery('rfp_requests', 'updateRFP', { id, updates });
+    this.logQuery('rfp_requests', 'updateRFP');
 
     try {
       const { data, error } = await supabase
@@ -134,7 +134,7 @@ export class RFPService extends BaseService {
    * Удалить RFP
    */
   async deleteRFP(id: string): Promise<ApiResponse<void>> {
-    this.logQuery('rfp_requests', 'deleteRFP', { id });
+    this.logQuery('rfp_requests', 'deleteRFP');
 
     try {
       const { error } = await supabase
@@ -152,7 +152,7 @@ export class RFPService extends BaseService {
    * Получить заявки для RFP
    */
   async getBidsForRFP(rfpId: string): Promise<ApiResponse<Bid[]>> {
-    this.logQuery('bids', 'getBidsForRFP', { rfpId });
+    this.logQuery('bids', 'getBidsForRFP');
 
     try {
       const { data, error } = await supabase
@@ -175,7 +175,7 @@ export class RFPService extends BaseService {
    * Создать заявку на RFP
    */
   async createBid(bid: Omit<Bid, 'id' | 'submitted_at' | 'status'>): Promise<ApiResponse<Bid>> {
-    this.logQuery('bids', 'createBid', bid);
+    this.logQuery('bids', 'createBid');
 
     try {
       this.validateRequired(bid, ['rfp_id', 'developer_id', 'solution_id', 'proposal_text', 'price', 'timeline']);
@@ -200,7 +200,7 @@ export class RFPService extends BaseService {
    * Обновить статус заявки
    */
   async updateBidStatus(bidId: string, status: 'pending' | 'accepted' | 'rejected'): Promise<ApiResponse<Bid>> {
-    this.logQuery('bids', 'updateBidStatus', { bidId, status });
+    this.logQuery('bids', 'updateBidStatus');
 
     try {
       const { data, error } = await supabase

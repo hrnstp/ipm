@@ -8,7 +8,7 @@ export class ProjectService extends BaseService {
    * Получить все проекты с фильтрацией
    */
   async getProjects(filters?: ProjectFilters): Promise<ApiResponse<Project[]>> {
-    this.logQuery('projects', 'getProjects', filters);
+    this.logQuery('projects', 'getProjects');
 
     try {
       let query = supabase
@@ -57,7 +57,7 @@ export class ProjectService extends BaseService {
    * Получить проект по ID
    */
   async getProjectById(id: string): Promise<ApiResponse<Project>> {
-    this.logQuery('projects', 'getProjectById', { id });
+    this.logQuery('projects', 'getProjectById');
 
     try {
       const { data, error } = await supabase
@@ -82,7 +82,7 @@ export class ProjectService extends BaseService {
    * Создать новый проект
    */
   async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Project>> {
-    this.logQuery('projects', 'createProject', project);
+    this.logQuery('projects', 'createProject');
 
     try {
       this.validateRequired(project, ['solution_id', 'municipality_id', 'developer_id', 'title']);
@@ -106,7 +106,7 @@ export class ProjectService extends BaseService {
    * Обновить проект
    */
   async updateProject(id: string, updates: Partial<Project>): Promise<ApiResponse<Project>> {
-    this.logQuery('projects', 'updateProject', { id, updates });
+    this.logQuery('projects', 'updateProject');
 
     try {
       const { data, error } = await supabase
@@ -129,7 +129,7 @@ export class ProjectService extends BaseService {
    * Удалить проект
    */
   async deleteProject(id: string): Promise<ApiResponse<void>> {
-    this.logQuery('projects', 'deleteProject', { id });
+    this.logQuery('projects', 'deleteProject');
 
     try {
       const { error } = await supabase
