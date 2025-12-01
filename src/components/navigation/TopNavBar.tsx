@@ -1,4 +1,4 @@
-import { Globe2, Search, Bell, Command } from 'lucide-react';
+import { Globe2, Search, Bell, Command, Menu } from 'lucide-react';
 import ThemeToggle from '../ThemeToggle';
 import UserMenu from './UserMenu';
 
@@ -13,6 +13,7 @@ interface TopNavBarProps {
   onSectionChange: (sectionId: string) => void;
   onSearchOpen: () => void;
   onNavigate: (tab: string) => void;
+  onMobileMenuOpen?: () => void;
   unreadCount?: number;
 }
 
@@ -22,6 +23,7 @@ export default function TopNavBar({
   onSectionChange,
   onSearchOpen,
   onNavigate,
+  onMobileMenuOpen,
   unreadCount = 0,
 }: TopNavBarProps) {
   return (
@@ -29,7 +31,18 @@ export default function TopNavBar({
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left side: Logo + Search + Navigation */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
+            {/* Mobile menu button */}
+            {onMobileMenuOpen && (
+              <button
+                onClick={onMobileMenuOpen}
+                className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
+
             {/* Logo */}
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/20">

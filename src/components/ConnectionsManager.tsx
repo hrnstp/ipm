@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase, Connection, Profile } from '../lib/supabase';
 import { UserPlus, Check, X, Send, Users, MessageCircle } from 'lucide-react';
 import { useToast } from '../shared/hooks/useToast';
+import { EmptyState } from '../shared/components/ui';
 
 export default function ConnectionsManager() {
   const { profile } = useAuth();
@@ -320,10 +321,16 @@ export default function ConnectionsManager() {
       </div>
 
       {filteredConnections.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-600">No connections found</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No connections found"
+          description={
+            filter !== 'all'
+              ? `No ${filter} connections. Try viewing all connections.`
+              : "Build your network! Connect with municipalities, developers, and integrators to explore collaboration opportunities."
+          }
+          action={{ label: 'Find Connections', onClick: () => setShowNewConnection(true) }}
+        />
       )}
 
       {showNewConnection && <NewConnectionModal />}

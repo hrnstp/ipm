@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { EmptyState } from '../shared/components/ui';
 import {
   FileText,
   Plus,
@@ -310,10 +311,20 @@ export default function ProcurementRFP() {
       </div>
 
       {filteredRFPs.length === 0 && (
-        <div className="text-center py-12">
-          <FileText className="w-12 h-12 text-themed-tertiary mx-auto mb-4" />
-          <p className="text-themed-secondary">No RFPs found</p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="No RFPs found"
+          description={
+            searchTerm || filter !== 'all'
+              ? "Try adjusting your search or filters to find more opportunities."
+              : "No Requests for Proposals are available yet. Municipalities can create RFPs to attract solution developers."
+          }
+          action={
+            profile?.role === 'municipality'
+              ? { label: 'Create RFP', onClick: () => setShowCreateModal(true) }
+              : undefined
+          }
+        />
       )}
 
       {showCreateModal && (

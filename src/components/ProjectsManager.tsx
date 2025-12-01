@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase, Project, SmartSolution, Municipality, Integrator } from '../lib/supabase';
+import { supabase, SmartSolution, Municipality, ProjectWithRelations, TechnologyTransfer, PaymentMilestone } from '../lib/supabase';
 import { FolderOpen, Plus, X, Clock, TrendingUp, MapPin, DollarSign, BookOpen, Lightbulb, GraduationCap, FileText, AlertTriangle, CheckCircle, ExternalLink, Award } from 'lucide-react';
 import { useToast } from '../shared/hooks/useToast';
+import { EmptyState } from '../shared/components/ui';
+
+type ProjectStatus = 'all' | 'planning' | 'in_progress' | 'completed' | 'on_hold';
 
 export default function ProjectsManager() {
   const { profile } = useAuth();
   const { showSuccess, showError } = useToast();
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<ProjectWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedProject, setSelectedProject] = useState<ProjectWithRelations | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ProjectStatus>('all');
 
   useEffect(() => {
     loadProjects();
@@ -400,10 +403,20 @@ export default function ProjectsManager() {
       </div>
 
       {filteredProjects.length === 0 && (
-        <div className="text-center py-12">
-          <FolderOpen className="w-12 h-12 text-themed-tertiary mx-auto mb-4" />
-          <p className="text-themed-secondary">No projects found</p>
-        </div>
+        <EmptyState
+          icon={FolderOpen}
+          title="No projects found"
+          description={
+            statusFilter !== 'all'
+              ? `No ${statusFilter.replace('_', ' ')} projects yet. Try selecting a different filter.`
+              : "You don't have any projects yet. Start by creating your first project to track smart city implementations."
+          }
+          action={
+            (profile?.role === 'developer' || profile?.role === 'municipality')
+              ? { label: 'Create First Project', onClick: () => setShowCreateModal(true) }
+              : undefined
+          }
+        />
       )}
 
       {showCreateModal && <CreateProjectModal />}
@@ -417,9 +430,9 @@ export default function ProjectsManager() {
     </div>
   );
 
-  function ProjectDetailsModal({ project, onClose, onUpdate }: { project: any, onClose: () => void, onUpdate: () => void }) {
-    const [transfers, setTransfers] = useState<any[]>([]);
-    const [milestones, setMilestones] = useState<any[]>([]);
+  function ProjectDetailsModal({ project, onClose, onUpdate }: { project: ProjectWithRelations, onClose: () => void, onUpdate: () => void }) {
+    const [transfers, setTransfers] = useState<TechnologyTransfer[]>([]);
+    const [milestones, setMilestones] = useState<PaymentMilestone[]>([]);
     const [showAddTransfer, setShowAddTransfer] = useState(false);
     const [showAddMilestone, setShowAddMilestone] = useState(false);
     const [transferForm, setTransferForm] = useState({
@@ -534,9 +547,9 @@ export default function ProjectsManager() {
       }
     };
 
-    const updateMilestoneStatus = async (milestoneId: string, status: string) => {
+    const updateMilestoneStatus = async (milestoneId: string, status: PaymentMilestone['status']) => {
       try {
-        const updates: any = { status, updated_at: new Date().toISOString() };
+        const updates: Partial<PaymentMilestone> = { status, updated_at: new Date().toISOString() };
         if (status === 'paid') {
           updates.paid_date = new Date().toISOString();
         }

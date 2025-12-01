@@ -12,6 +12,7 @@ import { isValidUUID } from '../shared/utils/validators';
 // Navigation components
 import TopNavBar from './navigation/TopNavBar';
 import ContextualSidebar from './navigation/ContextualSidebar';
+import MobileSidebar from './navigation/MobileSidebar';
 import GlobalSearch from './navigation/GlobalSearch';
 
 // Lazy load all components for better performance
@@ -139,13 +140,14 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('marketplace');
   const [activeSection, setActiveSection] = useState('overview');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
-  // Load unread messages count
+  // Load unread messages count with Realtime subscription
   useEffect(() => {
-    const loadUnreadMessages = async () => {
-      if (!profile?.id || !isValidUUID(profile.id)) return;
+    if (!profile?.id || !isValidUUID(profile.id)) return;
 
+    const loadUnreadMessages = async () => {
       try {
         const { count } = await supabase
           .from('messages')
@@ -159,12 +161,31 @@ export default function Dashboard() {
       }
     };
 
+    // Initial load
     loadUnreadMessages();
-    
-    // Poll for new messages every 30 seconds
-    const interval = setInterval(loadUnreadMessages, 30000);
-    return () => clearInterval(interval);
-  }, [profile]);
+
+    // Subscribe to realtime changes for messages
+    const channel = supabase
+      .channel('unread-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `recipient_id=eq.${profile.id}`,
+        },
+        () => {
+          // Reload count on any message change
+          loadUnreadMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id]);
 
   // Keyboard shortcut for search
   useEffect(() => {
@@ -207,6 +228,7 @@ export default function Dashboard() {
         activeSection={activeSection}
         onSectionChange={handleSectionChange}
         onSearchOpen={() => setIsSearchOpen(true)}
+        onMobileMenuOpen={() => setIsMobileSidebarOpen(true)}
         onNavigate={handleNavigate}
         unreadCount={unreadMessages}
       />
@@ -216,6 +238,16 @@ export default function Dashboard() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onNavigate={handleNavigate}
+      />
+
+      {/* Mobile Sidebar */}
+      <MobileSidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+        title={SECTIONS.find(s => s.id === activeSection)?.label || ''}
+        items={sidebarItems}
+        activeItem={activeTab}
+        onItemClick={(itemId) => setActiveTab(itemId as Tab)}
       />
 
       {/* Main content area */}

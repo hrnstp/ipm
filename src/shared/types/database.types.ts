@@ -200,3 +200,83 @@ export interface Bid {
   };
 }
 
+// Profile type for related data
+export interface Profile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: 'developer' | 'municipality' | 'integrator';
+  organization: string;
+  country: string;
+  region: string;
+  bio?: string;
+  avatar_url?: string;
+  created_at: string;
+}
+
+// RFP summary for project relations
+export interface RFPSummary {
+  title: string;
+  status: string;
+  budget_min?: number;
+  budget_max?: number;
+  currency?: string;
+}
+
+// Bid summary for project relations
+export interface BidSummary {
+  price?: number;
+  currency?: string;
+  timeline?: string;
+}
+
+// Technology transfer record
+export interface TechnologyTransfer {
+  id: string;
+  project_id: string;
+  transfer_type: 'knowledge' | 'training' | 'documentation' | 'technical_support';
+  description: string;
+  challenges_faced: string[];
+  solutions_applied: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Payment milestone
+export interface PaymentMilestone {
+  id: string;
+  project_id: string;
+  title: string;
+  description?: string;
+  amount: number;
+  currency: string;
+  due_date?: string;
+  status: 'pending' | 'paid' | 'overdue';
+  paid_date?: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Project with all relations for list/detail views
+export interface ProjectWithRelations extends Project {
+  solution?: SmartSolution;
+  municipality?: Municipality;
+  integrator?: Integrator;
+  developer?: Profile;
+  rfp?: RFPSummary;
+  winning_bid?: BidSummary;
+}
+
+// Connection between users
+export interface Connection {
+  id: string;
+  initiator_id: string;
+  recipient_id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  connection_type: 'inquiry' | 'collaboration' | 'partnership';
+  message?: string;
+  created_at: string;
+  updated_at: string;
+}
+

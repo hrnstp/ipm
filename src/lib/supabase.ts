@@ -66,4 +66,9 @@ export type {
   RFPRequirements,
   EvaluationCriteria,
   VendorRating,
+  ProjectWithRelations,
+  TechnologyTransfer,
+  PaymentMilestone,
+  RFPSummary,
+  BidSummary,
 } from '../shared/types/database.types';
