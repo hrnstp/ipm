@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, User, Settings, ChevronDown, Building2, Shield } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, Building2, Shield, Code2 } from 'lucide-react';
 
 interface UserMenuProps {
   onNavigate: (tab: string) => void;
@@ -41,7 +41,7 @@ export default function UserMenu({ onNavigate }: UserMenuProps) {
       case 'municipality':
         return Building2;
       case 'developer':
-        return Settings;
+        return Code2;
       case 'integrator':
         return Shield;
       default:

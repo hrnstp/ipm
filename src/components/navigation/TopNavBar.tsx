@@ -36,8 +36,8 @@ export default function TopNavBar({
                 <Globe2 className="w-6 h-6 text-white" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-display font-bold text-white leading-tight">CityMind</h1>
-                <p className="text-[10px] text-teal-400 font-semibold uppercase tracking-wider">Platform</p>
+                <h1 className="text-lg font-display font-bold text-white leading-tight">UrbanLink</h1>
+                <p className="text-[10px] text-teal-400 font-semibold uppercase tracking-wider">Smart City</p>
               </div>
             </div>
 
