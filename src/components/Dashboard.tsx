@@ -98,7 +98,6 @@ const getSectionItems = (sectionId: string, profile: any, unreadMessages: number
       { id: 'audit', label: 'Audit Log', icon: Shield, show: true },
       { id: 'compliance', label: 'Compliance', icon: ShieldCheck, show: true },
       { id: 'privacy', label: 'Privacy', icon: Lock, show: true },
-      { id: 'settings', label: 'Settings', icon: Settings, show: true },
     ],
   };
 
@@ -129,7 +128,7 @@ const findSectionForTab = (tab: Tab): string => {
     audit: 'security',
     compliance: 'security',
     privacy: 'security',
-    settings: 'security',
+    settings: 'overview',
     profile: 'overview',
   };
   return sectionMap[tab] || 'overview';
