@@ -664,19 +664,32 @@ CREATE POLICY "Users can record analytics"
 
 DROP POLICY IF EXISTS "Anyone can view solution adoption metrics" ON solution_adoption_metrics;
 DROP POLICY IF EXISTS "System can manage adoption metrics" ON solution_adoption_metrics;
+DROP POLICY IF EXISTS "View solution adoption metrics" ON solution_adoption_metrics;
+DROP POLICY IF EXISTS "System manages adoption metrics" ON solution_adoption_metrics;
 
--- Combined single SELECT policy for better performance
+-- Single SELECT policy for better performance
 CREATE POLICY "View solution adoption metrics"
   ON solution_adoption_metrics FOR SELECT
   TO authenticated
   USING (true);
 
 -- System management via functions only (no direct write access)
-CREATE POLICY "System manages adoption metrics"
-  ON solution_adoption_metrics FOR ALL
+-- Using separate policies for INSERT, UPDATE, DELETE to avoid conflict with SELECT policy
+CREATE POLICY "No direct insert to adoption metrics"
+  ON solution_adoption_metrics FOR INSERT
+  TO authenticated
+  WITH CHECK (false);
+
+CREATE POLICY "No direct update to adoption metrics"
+  ON solution_adoption_metrics FOR UPDATE
   TO authenticated
   USING (false)
   WITH CHECK (false);
+
+CREATE POLICY "No direct delete from adoption metrics"
+  ON solution_adoption_metrics FOR DELETE
+  TO authenticated
+  USING (false);
 
 -- ============================================================
 -- PART 19: municipality_benchmarks table (combine policies)
